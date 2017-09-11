@@ -13,6 +13,7 @@
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "pretty": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true
   }
 }
