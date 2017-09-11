@@ -24,16 +24,20 @@ async function main() {
   const statement = snowflake.createStatement({
     sqlText: 'SELECT * FROM CUSTOMER WHERE C_MKTSEGMENT=:1',
     binds: ['AUTOMOBILE'],
+    // This tells Snowflake not to bother building an array of all the result
+    // rows. That’s a good thing when streaming a huge result set:
     streamResult: true
   });
 
+  // You don’t have to await this, you can begin streaming immediately.
   await statement.execute();
 
-  // How many rows did it return? (Without loading all of them.)
+  // How many rows in the result set?  This only works if you await-ed
+  // execute(), above. Otherwise, the number of rows is not known yet.
   console.log(`the query result set has ${statement.getNumRows()} rows`);
 
-  // let’s process rows 250-275, one by one
-  // (if you omit the argument for streamRows(), all rows will be processed)
+  // Let’s process rows 250-275, one by one. (If you omit the argument for
+  // streamRows(), all rows will be processed.)
   statement.streamRows({ start: 250, end: 275 })
     .on('error', console.error)
     .on('data', row => console.log(`customer name is: ${row['C_NAME']}`))
