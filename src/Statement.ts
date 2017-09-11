@@ -3,7 +3,6 @@ import { Readable } from 'stream';
 import { Snowflake } from './Snowflake';
 import { StatementAlreadyExecutedError } from './types/StatementAlreadyExecutedError';
 import { StatementNotExecutedError } from './types/StatementNotExecutedError';
-import { StatementStreamingModeMismatchError } from './types/StatementStreamingModeMismatchError';
 import { StreamRowsOptions } from './types/StreamRowsOptions';
 
 export class Statement {
@@ -58,12 +57,6 @@ export class Statement {
    */
   getRows() {
     if (!this.executePromise) { throw new StatementNotExecutedError(); }
-
-    if (this.executeOptions.streamResult) {
-      const msg = 'Statement is in streaming mode; cannot get rows (non-streaming)';
-      throw new StatementStreamingModeMismatchError(msg);
-    }
-
     return this.executePromise.then(() => this.rows);
   }
 
@@ -73,12 +66,6 @@ export class Statement {
    */
   streamRows(options: StreamRowsOptions = {}): Readable {
     if (!this.executePromise) { throw new StatementNotExecutedError(); }
-
-    if (!this.executeOptions.streamResult) {
-      const msg = 'cannot stream rows from Statement in non-streaming mode';
-      throw new StatementStreamingModeMismatchError(msg);
-    }
-
     return this.stmt.streamRows(options);
   }
 
