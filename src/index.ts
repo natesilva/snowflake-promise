@@ -6,5 +6,4 @@ export { ExecuteOptions } from './types/ExecuteOptions';
 export { SnowflakeError } from './types/SnowflakeError';
 export { StatementAlreadyExecutedError } from './types/StatementAlreadyExecutedError';
 export { StatementNotExecutedError } from './types/StatementNotExecutedError';
-export { StatementStreamingModeMismatchError } from './types/StatementStreamingModeMismatchError';
 export { StreamRowsOptions } from './types/StreamRowsOptions';
