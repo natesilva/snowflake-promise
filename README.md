@@ -40,6 +40,6 @@ main();
 
 ## More examples
 
-* [Streaming result rows](../../examples/streaming.js)
-* [Using traditional Promise `then` syntax (and older versions of Node.js)](../../examples/oldSchool.js)
+* [Streaming result rows](src/examples/streaming.js)
+* [Using traditional Promise `then` syntax (and older versions of Node.js)](src/examples/oldSchool.js)
     * Node 4.0.0 is the oldest supported version
