@@ -2,19 +2,20 @@
   "name": "snowflake-promise",
   "version": "1.0.0",
   "description": "A Promise-based, TypeScript-friendly wrapper for the Snowflake SDK",
-  "main": "prod/src/index.js",
-  "types": "prod/src/index.d.ts",
-  "scripts": {
-    "prepare": "del-cli prod && tsc"
-  },
+  "repository": "bitbucket:adp-developers/snowflake-promise.git",
+  "license": "MIT",
+  "author": "Nate Silva <nate@natesilva.com>",
   "keywords": [
     "snowflake",
     "database",
     "data warehouse",
     "warehouse"
   ],
-  "author": "Nate Silva <nate@natesilva.com>",
-  "license": "MIT",
+  "main": "prod/src/index.js",
+  "types": "prod/src/index.d.ts",
+  "scripts": {
+    "prepare": "del-cli prod && tsc"
+  },
   "engines": {
     "node": ">=4.0.0"
   },
