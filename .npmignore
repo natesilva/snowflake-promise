@@ -12,4 +12,5 @@ test/aws.json
 
 # other
 examples
-
+test.ts
+test.js
