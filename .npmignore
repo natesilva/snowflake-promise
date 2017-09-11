@@ -9,3 +9,7 @@ coverage
 # unit tests
 test
 test/aws.json
+
+# other
+examples
+
