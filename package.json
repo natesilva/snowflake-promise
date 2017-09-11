@@ -11,8 +11,8 @@
     "data warehouse",
     "warehouse"
   ],
-  "main": "prod/src/index.js",
-  "types": "prod/src/index.d.ts",
+  "main": "prod/index.js",
+  "types": "prod/index.d.ts",
   "scripts": {
     "prepare": "del-cli prod && tsc"
   },
