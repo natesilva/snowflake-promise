@@ -1,0 +1,18 @@
+{
+  "include": [
+    "src/**/*",
+    "test/**/*"
+  ],
+  "compilerOptions": {
+    "outDir": "prod",
+    "target": "ES5",
+    "module": "commonjs",
+    "sourceMap": true,
+    "lib": ["es5", "es2015.promise"],
+    "noImplicitReturns": true,
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "pretty": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}
