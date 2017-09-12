@@ -144,14 +144,22 @@ export class Statement {
 
   /** log execution details */
   private log(elapsedTime: number) {
-    const state = this.getSessionState();
-    const db = state.getCurrentDatabase();
-    const schema = state.getCurrentSchema();
-    const sqlText = this.getSqlText();
+    let logMessage = 'Executed';
 
-    let logMessage = `Executed (${db}.${schema}): ${sqlText}`;
+    const state = this.getSessionState();
+    if (state) {
+      logMessage += ` (${state.getCurrentDatabase()}.${state.getCurrentSchema()})`;
+    }
+
+    logMessage += `: ${this.getSqlText()}`;
     if (logMessage[logMessage.length - 1] !== ';') { logMessage += ';'; }
+
+    if (this.executeOptions.binds) {
+      logMessage += `  with binds: ${JSON.stringify(this.executeOptions.binds)};`
+    }
+
     logMessage += `  Elapsed time: ${elapsedTime}ms`;
+
     this.logSql(logMessage);
   }
 }
