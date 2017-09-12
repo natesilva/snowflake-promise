@@ -12,8 +12,8 @@ export class Statement {
 
   /**
    * @param connection the connection object from the SDK
-   * @param sqlText the SQL to execute
-   * @param binds parameters to bind in the statement
+   * @param executeOptions the Statement configuration, including the sqlText
+   * @param logSql function to use to log SQL statements
    */
   constructor(
     private readonly connection: any,
