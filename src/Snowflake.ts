@@ -2,13 +2,17 @@ import * as SDK from 'snowflake-sdk';
 
 import { ConnectionOptions } from './types/ConnectionOptions';
 import { ExecuteOptions } from './types/ExecuteOptions';
+import { LoggingOptions } from './types/LoggingOptions';
 import { Statement } from './Statement';
 
 export class Snowflake {
   private readonly sdk_connection;
+  private readonly logSql: (sqlText: string) => void;
 
   /* Creates a new Snowflake instance. */
-  constructor(private readonly connectionOptions: ConnectionOptions) {
+  constructor(connectionOptions: ConnectionOptions, loggingOptions: LoggingOptions​​ = {}) {
+    if (loggingOptions.logLevel) { SDK.configure({ logLevel: loggingOptions.logLevel }); }
+    this.logSql = loggingOptions.logSql || null;
     this.sdk_connection = SDK.createConnection(connectionOptions);
   }
 
@@ -40,7 +44,7 @@ export class Snowflake {
 
   /** Create a Statement. */
   createStatement(options: ExecuteOptions) {
-    return new Statement(this.sdk_connection, options);
+    return new Statement(this.sdk_connection, options, this.logSql);
   }
 
   /** A convenience function to execute a SQL statement and return the resulting rows. */

@@ -43,3 +43,4 @@ main();
 * [Streaming result rows](https://bitbucket.org/adp-developers/snowflake-promise/src/master/examples/streaming.js)
 * [Using traditional Promise `then` syntax (and older versions of Node.js)](https://bitbucket.org/adp-developers/snowflake-promise/src/master/examples/oldSchool.js)
     * Node 4.0.0 is the oldest supported version
+* [Turn on logging](https://bitbucket.org/adp-developers/snowflake-promise/src/master/examples/logging.js)

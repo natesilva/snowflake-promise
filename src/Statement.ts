@@ -17,7 +17,8 @@ export class Statement {
    */
   constructor(
     private readonly connection: any,
-    private readonly executeOptions: ExecuteOptions
+    private readonly executeOptions: ExecuteOptions,
+    private readonly logSql: (sqlText: string) => void = null
   ) {}
 
   /**
@@ -29,12 +30,17 @@ export class Statement {
     if (this.executePromise) { throw new StatementAlreadyExecutedError(); }
 
     this.executePromise = new Promise((resolve, reject) => {
+      let startTime: number;
+
       this.executeOptions['complete'] = (err, stmt, rows) => {
+        const elapsed = Date.now() - startTime;
         if (err) { reject(err); }
+        if (this.logSql) { this.log(elapsed); }
         this.rows = rows;
         resolve();
       };
 
+      startTime = Date.now();
       this.stmt = this.connection.execute(this.executeOptions);
     });
 
@@ -134,5 +140,18 @@ export class Statement {
   getStatementId(): object {
     if (!this.executePromise) { throw new StatementNotExecutedError(); }
     return this.stmt.getStatementtId();
+  }
+
+  /** log execution details */
+  private log(elapsedTime: number) {
+    const state = this.getSessionState();
+    const db = state.getCurrentDatabase();
+    const schema = state.getCurrentSchema();
+    const sqlText = this.getSqlText();
+
+    let logMessage = `Executed (${db}.${schema}): ${sqlText}`;
+    if (logMessage[logMessage.length - 1] !== ';') { logMessage += ';'; }
+    logMessage += `  Elapsed time: ${elapsedTime}ms`;
+    this.logSql(logMessage);
   }
 }
