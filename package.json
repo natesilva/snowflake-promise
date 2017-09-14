@@ -3,6 +3,7 @@
   "version": "1.4.0",
   "description": "A Promise-based, TypeScript-friendly wrapper for the Snowflake SDK",
   "repository": "bitbucket:adp-developers/snowflake-promise.git",
+  "bugs": "https://bitbucket.org/adp-developers/snowflake-promise/issues",
   "license": "MIT",
   "author": "Nate Silva <nate@natesilva.com>",
   "keywords": [
