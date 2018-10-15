@@ -1,6 +1,6 @@
 {
   "name": "snowflake-promise",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "A Promise-based, TypeScript-friendly wrapper for the Snowflake SDK",
   "repository": "bitbucket:adp-developers/snowflake-promise.git",
   "bugs": "https://bitbucket.org/adp-developers/snowflake-promise/issues",
