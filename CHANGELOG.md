@@ -1,3 +1,10 @@
+### 1.11.0
+
+2019-07-11
+
+* Update to `snowflake-sdk` 1.1.15
+* Update dev dependencies to latest versions
+
 ### 1.10.0
 
 2018-12-31
