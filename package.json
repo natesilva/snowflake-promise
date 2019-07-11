@@ -23,6 +23,7 @@
   "devDependencies": {
     "@types/node": "^11.13.17",
     "del-cli": "^2.0.0",
+    "np": "^5.0.3",
     "ts-node": "^8.3.0",
     "tslint": "^5.18.0",
     "typescript": "^3.5.3"

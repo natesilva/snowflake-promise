@@ -4,6 +4,7 @@
 
 * Update to `snowflake-sdk` 1.1.15
 * Update dev dependencies to latest versions
+* Now using [`np`](https://github.com/sindresorhus/np) to build for release.
 
 ### 1.10.0
 
