@@ -12,10 +12,10 @@
     "data warehouse",
     "warehouse"
   ],
-  "main": "prod/index.js",
-  "types": "prod/index.d.ts",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
   "scripts": {
-    "prepare": "del-cli prod && tsc"
+    "prepare": "del-cli build && tsc"
   },
   "engines": {
     "node": ">=6.9.5"
