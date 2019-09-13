@@ -58,7 +58,7 @@ The constructor takes up to three arguments:
 
 ## More examples
 
-* [Streaming result rows](https://bitbucket.org/adp-developers/snowflake-promise/src/master/examples/streaming.js)
-* [Using traditional Promise `then` syntax (and older versions of Node.js)](https://bitbucket.org/adp-developers/snowflake-promise/src/master/examples/oldSchool.js)
+* [Streaming result rows](examples/streaming.js)
+* [Using traditional Promise `then` syntax (and older versions of Node.js)](examples/oldSchool.js)
     * Node v6.9.5 is the oldest supported version
-* [Turn on logging](https://bitbucket.org/adp-developers/snowflake-promise/src/master/examples/logging.js)
+* [Turn on logging](examples/logging.js)
