@@ -54,7 +54,7 @@ The constructor takes up to three arguments:
     SDK-level logging.
 * `configureOptions`
   * `ocspFailOpen` (optional, boolean) (default: `true`): Enables OCSP fail-open
-    functionality. See <https://bit.ly/2mdIb5j> for more information.
+    functionality. See <https://www.snowflake.com/blog/latest-changes-to-how-snowflake-handles-ocsp/> for more information.
 
 ## More examples
 
