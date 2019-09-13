@@ -38,9 +38,27 @@ async function main() {
 main();
 ```
 
+## Connecting
+
+The constructor takes up to three arguments:
+
+`new Snowflake(connectionOptions, [ loggingOptions, [ configureOptions ] ])`
+
+* `connectionOptions`
+  * Supported options are here: <https://docs.snowflake.net/manuals/user-guide/nodejs-driver-use.html#required-connection-options>
+* `loggingOptions`
+  * `logSql` (optional, function): If provided, this function will be called to log SQL
+    statements. For example, set `logSql` to `console.log` to log all issued SQL
+    statements to the console.
+  * `logLevel` (optional: `'error' | 'warn' | 'debug' | 'info' | 'trace'`): Turns on
+    SDK-level logging.
+* `configureOptions`
+  * `ocspFailOpen` (optional, boolean) (default: `true`): Enables OCSP fail-open
+    functionality. See <https://bit.ly/2mdIb5j> for more information.
+
 ## More examples
 
 * [Streaming result rows](https://bitbucket.org/adp-developers/snowflake-promise/src/master/examples/streaming.js)
 * [Using traditional Promise `then` syntax (and older versions of Node.js)](https://bitbucket.org/adp-developers/snowflake-promise/src/master/examples/oldSchool.js)
-    * Node 4.0.0 is the oldest supported version
+    * Node v6.9.5 is the oldest supported version
 * [Turn on logging](https://bitbucket.org/adp-developers/snowflake-promise/src/master/examples/logging.js)
