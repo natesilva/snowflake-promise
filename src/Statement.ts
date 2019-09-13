@@ -139,7 +139,7 @@ export class Statement {
    */
   getStatementId(): object {
     if (!this.executePromise) { throw new StatementNotExecutedError(); }
-    return this.stmt.getStatementtId();
+    return this.stmt.getStatementId();
   }
 
   /** log execution details */
