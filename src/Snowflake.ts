@@ -1,32 +1,44 @@
-import * as SDK from "snowflake-sdk";
-
-import { ConnectionOptions } from "./types/ConnectionOptions";
-import { ExecuteOptions } from "./types/ExecuteOptions";
-import { LoggingOptions } from "./types/LoggingOptions";
-import { Statement } from "./Statement";
+import * as SDK from 'snowflake-sdk';
+import { Statement } from './Statement';
+import { ConfigureOptions } from './types/ConfigureOptions';
+import { ConnectionOptions } from './types/ConnectionOptions';
+import { ExecuteOptions } from './types/ExecuteOptions';
+import { LoggingOptions } from './types/LoggingOptions';
 
 export class Snowflake {
   private readonly sdk_connection;
   private readonly logSql: (sqlText: string) => void;
 
-  /*
+  /**
    * Creates a new Snowflake instance.
    *
-   * Set the insecureConnect parameter to true to workaround OCSP errors when connecting.
-   * See: https://github.com/snowflakedb/snowflake-connector-nodejs/issues/16
+   * @param connectionOptions The Snowflake connection options
+   * @param loggingOptions Controls query logging and SDK-level logging
+   * @param configureOptions Additional configuration options
    */
   constructor(
     connectionOptions: ConnectionOptions,
     loggingOptions: LoggingOptions = {},
-    insecureConnect = false
+    configureOptions?: ConfigureOptions | boolean
   ) {
     if (loggingOptions && loggingOptions.logLevel) {
       SDK.configure({ logLevel: loggingOptions.logLevel });
     }
     this.logSql = (loggingOptions && loggingOptions.logSql) || null;
-    if (insecureConnect) {
-      SDK.configure({ insecureConnect: true });
+
+    // For backward compatibility, configureOptions is allowed to be a boolean, but it’s
+    // ignored. The new default settings accomplish the same thing as the old
+    // `insecureConnect` boolean.
+
+    if (typeof configureOptions === 'boolean') {
+      console.warn(
+        '[snowflake-promise] the insecureConnect boolean argument is deprecated; ' +
+          'please remove it or use the ocspFailOpen configure option'
+      );
+    } else if (typeof configureOptions === 'object') {
+      SDK.configure(configureOptions);
     }
+
     this.sdk_connection = SDK.createConnection(connectionOptions);
   }
 
