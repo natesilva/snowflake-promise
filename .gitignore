@@ -58,5 +58,5 @@ typings/
 .env
 
 # Project-specific ignores
-prod
+build
 src/test.ts
