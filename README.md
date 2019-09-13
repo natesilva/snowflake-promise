@@ -6,8 +6,8 @@ This is a wrapper for the [Snowflake SDK](https://www.npmjs.com/package/snowflak
 
 ## Installation
 
-`npm i snowflake-promise` (current version 1.11.0)
-`npm i snowflake-promise@next` (pre-release version 2.0.0)
+* `npm i snowflake-promise` (current version 1.11.0)
+* `npm i snowflake-promise@next` (pre-release version 2.0.0)
 
 ## Basic usage
 
