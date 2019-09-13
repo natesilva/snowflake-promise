@@ -1,4 +1,4 @@
-⚠️ Release notes are now found on Github:
+⚠️ Release notes are now found on GitHub:
 
 <https://github.com/natesilva/snowflake-promise/releases>
 
