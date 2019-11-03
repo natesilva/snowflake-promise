@@ -27,4 +27,12 @@ export interface ConnectionOptions {
   warehouse?: string;
   /** The default security role to use for the session after connecting. */
   role?: string;
+  /** By default, client connections typically time out approximately 3-4 hours
+   * after the most recent query was executed. If the parameter clientSessionKeepAlive is set to true,
+   * the client’s connection to the server will be kept alive indefinitely, even if no queries are executed.
+   * The default setting of this parameter is false. If you set this parameter to true, make sure that your
+   * program explicitly disconnects from the server when your program has finished.
+   * Do not exit without disconnecting.
+   */
+  clientSessionKeepAlive?: boolean;
 }
