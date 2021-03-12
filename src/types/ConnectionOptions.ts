@@ -19,9 +19,9 @@ export interface ConnectionOptions {
    *   OAUTH: Use OAuth for authentication. You must also set the token option to the OAuth token
    *   SNOWFLAKE_JWT: Use key pair authentication
    */
-  authenticator?: string;
   /** Password for the user. Set this option if you set the authenticator option to
    *  SNOWFLAKE or if you left the authenticator option unset.
+  authenticator?: "SNOWFLAKE" | "EXTERNALBROWSER" | "OAUTH" | "SNOWFLAKE_JWT";
    */
   password?: string;
   /** Specifies the OAuth token to use for authentication. */
