@@ -7,8 +7,28 @@ export interface ConnectionOptions {
   account: string;
   /** Snowflake user login name to connect with. */
   username: string;
-  /** Password for the user. */
-  password: string;
+  /**
+   * Specifies the authenticator to use for verifying user login credentials.
+   * You can set this to one of the following values:
+   *   SNOWFLAKE: Use the internal Snowflake authenticator. You must also set the password option.
+   *   EXTERNALBROWSER: Use your web browser to authenticate with Okta, ADFS, or any other
+   *                    SAML 2.0-compliant identity provider (IdP) that has been defined for your account
+   *   OAUTH: Use OAuth for authentication. You must also set the token option to the OAuth token
+   *   SNOWFLAKE_JWT: Use key pair authentication
+   */
+  authenticator?: string;
+  /** Password for the user. Set this option if you set the authenticator option t
+   *  SNOWFLAKE or if you left the authenticator option unset.
+   */
+  password?: string;
+  /** Specifies the OAuth token to use for authentication. */
+  token?: string;
+  /** Specifies the private key (in PEM format) for key pair authentication. */
+  privateKey?: string;
+  /** Specifies the local path to the private key file (e.g. rsa_key.p8). */
+  privateKeyPath?: string;
+  /** Specifies the passcode to decrypt the private key file, if the file is encrypted. */
+  privateKeyPass?: string;
   /**
    * Region for the user. Currently, only required for users connecting to the
    * following regions:
