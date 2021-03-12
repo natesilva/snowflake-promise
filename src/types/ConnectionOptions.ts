@@ -17,7 +17,7 @@ export interface ConnectionOptions {
    *   SNOWFLAKE_JWT: Use key pair authentication
    */
   authenticator?: string;
-  /** Password for the user. Set this option if you set the authenticator option t
+  /** Password for the user. Set this option if you set the authenticator option to
    *  SNOWFLAKE or if you left the authenticator option unset.
    */
   password?: string;
