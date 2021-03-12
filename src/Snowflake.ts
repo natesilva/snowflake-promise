@@ -60,6 +60,19 @@ export class Snowflake {
     });
   }
 
+  /** Establishes a connection if we aren't in a fatal state. */
+  connectAsync() {
+    return new Promise<void>((resolve, reject) => {
+      this.sdk_connection.connectAsync(err => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+
   /**
    * Immediately terminates the connection without waiting for currently
    * executing statements to complete.
