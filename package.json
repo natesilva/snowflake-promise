@@ -29,6 +29,6 @@
     "typescript": "^3.9.9"
   },
   "dependencies": {
-    "snowflake-sdk": "^1.6.0"
+    "snowflake-sdk": "^1.6.3"
   }
 }

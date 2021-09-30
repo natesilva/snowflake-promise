@@ -89,4 +89,6 @@ export interface ConnectionOptions {
    * 3600 seconds are rarely necessary or useful.
    */
   clientSessionKeepAliveHeartbeatFrequency?: number;
+  /** The client application used for partnership tracking */
+  application?: string;
 }
