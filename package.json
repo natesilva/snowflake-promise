@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@types/node": "^10.17.55",
+    "@types/snowflake-sdk": "^1.6.2",
     "del-cli": "^3.0.1",
     "np": "^6.5.0",
     "ts-node": "^9.1.1",
