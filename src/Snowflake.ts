@@ -6,7 +6,7 @@ import { ExecuteOptions } from './types/ExecuteOptions';
 import { LoggingOptions } from './types/LoggingOptions';
 
 export class Snowflake {
-  private readonly sdk_connection;
+  private readonly sdk_connection: SDK.Connection;
   private readonly logSql: (sqlText: string) => void;
 
   /**
@@ -99,5 +99,10 @@ export class Snowflake {
     const stmt = this.createStatement({ sqlText, binds });
     stmt.execute();
     return stmt.getRows();
+  }
+
+  /** Wrapper to expose whether connection to sdk is up */
+  isUp() {
+    return this.sdk_connection.isUp();
   }
 }
