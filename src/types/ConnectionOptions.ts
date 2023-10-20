@@ -10,6 +10,7 @@ export interface ConnectionOptions {
   account: string;
   /** Snowflake user login name to connect with. */
   username: string;
+  /** Optional Connection Parameters */
   /**
    * Specifies the authenticator to use for verifying user login credentials.
    * You can set this to one of the following values:
@@ -89,4 +90,24 @@ export interface ConnectionOptions {
    * 3600 seconds are rarely necessary or useful.
    */
   clientSessionKeepAliveHeartbeatFrequency?: number;
+  /** Specifies the name of the client application connecting to Snowflake. */
+  application?: string;
+  /**
+   * Specifies the lists of hosts that the driver should connect to directly, bypassing 
+   * the proxy server (e.g. *.amazonaws.com to bypass Amazon S3 access). For multiple hosts, 
+   * separate the hostnames with a pipe symbol (|). You can also use an asterisk as a wild card. 
+   * For example:
+   *  noProxy: "*.amazonaws.com|*.my_company.com"
+   */
+  noProxy?: string;
+  /** Specifies the hostname of an authenticated proxy server. */
+  proxyHost?: string;
+  /** Specifies the password for the user specified by proxyUser. */
+  proxyPassword?: string;
+  /** Specifies the port of an authenticated proxy server. */
+  proxyPort?: number;
+  /** Specifies the protocol used to connect to the authenticated proxy server. Use this property to specify the HTTP protocol: http or https. */
+  proxyProtocol?: string;
+  /** Specifies the username used to connect to an authenticated proxy server. */
+  proxyUser?: string;
 }
