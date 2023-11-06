@@ -60,3 +60,5 @@ typings/
 # Project-specific ignores
 build
 src/test.ts
+
+.idea/
