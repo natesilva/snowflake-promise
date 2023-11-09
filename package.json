@@ -14,6 +14,9 @@
   ],
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
+  "scripts": {
+    "prepare": "del-cli build"
+  },
   "engines": {
     "node": ">=10"
   },
