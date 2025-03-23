@@ -15,18 +15,20 @@
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
   "scripts": {
-    "prepare": "del-cli build && tsc"
+    "prepare": "del-cli build && tsc",
+    "test": "vitest run"
   },
   "engines": {
     "node": ">=10"
   },
   "devDependencies": {
-    "@types/node": "^10.17.55",
+    "@types/node": "^18.19.81",
     "del-cli": "^3.0.1",
     "np": "^6.5.0",
     "ts-node": "^9.1.1",
     "tslint": "^6.1.3",
-    "typescript": "^3.9.9"
+    "typescript": "^3.9.9",
+    "vitest": "^3.0.9"
   },
   "dependencies": {
     "snowflake-sdk": "^1.6.0"
