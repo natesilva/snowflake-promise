@@ -22,7 +22,7 @@ Version 5 is a complete rewrite with improved TypeScript support while maintaini
 
 ---
 
-The documentation below covers the current stable version of the library.
+The documentation below covers version 4, the current stable version of the library.
 
 ## Installation
 
