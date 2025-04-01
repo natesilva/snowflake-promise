@@ -19,7 +19,6 @@ The following `Connection` methods are augmented with Promise support:
 - [`connectAsync`](#connectasync)
 - [`destroy`](#destroy)
 - [`execute`](#execute)
-- [`fetchResult`](#fetchresult)
 
 Any `RowStatement` objects returned from promisified methods will have Promise support added to the following method:
 
@@ -32,6 +31,7 @@ The methods below are enhanced with Promise support while still allowing callbac
 :::tip
 The Promise functionality activates automatically when no callback is provided. If a callback is provided, the original, non-promisified, callback-based method is called.
 :::
+
 ---
 
 ### `connect`
@@ -125,7 +125,7 @@ execute<RowType>(
 Use `execute` to run SQL queries. It returns an object containing both a `Statement` and a Promise for the results:
 
 ```javascript
-const { statement, resultsPromise } = await connection.execute({sqlText });
+const { statement, resultsPromise } = await connection.execute({ sqlText });
 ```
 
 You can use the `statement` object to manage or cancel long-running queries.
@@ -144,30 +144,6 @@ Instead of returning the results directly, the `execute` method returns both the
 
 This approach preserves all the functionality of the underlying Snowflake SDK.
 :::
-
----
-
-### `fetchResult`
-
-- Link: None. Not documented in the Snowflake SDK.
-
-#### TypeScript signature
-
-```typescript
-// original SDK signature
-fetchResult(options: StatementOption): RowStatement | FileAndStageBindStatement;
-
-// promisified signature
-fetchResult<RowType>(
-  options: StatementOptionWithoutCallback,
-): { statement: RowStatement; resultsPromise: Promise<RowType[]> };
-
-// Note: FileAndStageBindStatement is a subclass of RowStatement.
-```
-
-#### Usage
-
-Not documented.
 
 ---
 
