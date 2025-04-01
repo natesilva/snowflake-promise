@@ -1,0 +1,43 @@
+---
+id: query-example-3
+title: "Example: Canceling an In-Progress Query"
+---
+
+## Documentation
+
+- [Snowflake SDK Documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute#canceling-statements)
+
+## Introduction
+
+It’s possible to cancel an in-progress query using the `cancel()` method on the statement object.
+
+## Prerequisites
+
+- You’ve [established a connection](../../connecting) to Snowflake and promisified it using the `snowflake-promise` library.
+
+## Steps
+
+1. Execute the query.
+2. Once the query has started to run, but before it has completed, call the `cancel()` method on the statement object.
+
+## Example Code: Canceling an In-Progress Query
+
+```typescript
+// To simulate a long-running operation, we’ll tell Snowflake to
+// pause for 10 seconds.
+console.log('Starting query...', new Date());
+const { statement } = await connection.execute<Customer>({
+  sqlText: `CALL SYSTEM$WAIT(10, 'SECONDS')`
+});
+
+// Now we’ll wait 2 seconds and then cancel the query.
+console.log('Waiting...', new Date());
+await new Promise(resolve => setTimeout(resolve, 2000));
+
+// Cancel the query.
+console.log("Canceling, expect an Error to be thrown...", new Date());
+await statement.cancel();
+
+// Throws an error:
+// Error [OperationFailedError]: SQL execution canceled
+```

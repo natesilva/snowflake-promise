@@ -1,0 +1,82 @@
+# Key Implementation Details
+
+import Mermaid from '@theme/Mermaid';
+
+This page discusses selected implementation details of the library.
+
+This library aims to:
+
+- Help developers use Snowflake more intuitively through Promises.
+- Stay maintainable with a lightweight approach to enhancing the Snowflake API.
+
+## Proxying the Connection
+
+To add Promise support to the Snowflake SDK `Connection` type, we use a [JavaScript Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy). This allows us to intercept and modify the behavior of the original methods.
+
+A JavaScript Proxy has advantages over the traditional [Proxy design pattern](https://refactoring.guru/design-patterns/proxy):
+
+- We only need to trap specific methods, not implement the entire interface.
+  - This greatly improves maintainability.
+- The JavaScript proxy maintains the same prototype as the original object, ensuring it works anywhere the original would work.
+
+## Adding Promise Support While Still Allowing Callbacks
+
+A `PromisifiedConnection` can still be used with callbacks.
+
+Our promisify method creates a wrapper that detects if a callback is provided. With a callback, it runs the original method as-is. Without a callback, it returns a Promise that resolves with the method’s result.
+
+This approach maintains backward compatibility with existing callback code.
+
+## Speculation: Why the Official Snowflake SDK is not Fully Promisified
+
+The official Snowflake SDK is partially promisified, but key methods like `execute` are not.
+
+`execute` needs to return two different things at two different times:
+
+- The Statement object needs to be returned immediately, as it is used to manage the result set.
+- The results need to be returned later, when execution has completed.
+
+Callback-based APIs allow this. They return two different values at two different times: one value returned as the immediate result, and another value returned later via callback.
+
+### How we Addressed This Issue
+
+To fully support this functionality while using promises, we return an object that contains two values: the Statement object and a `Promise` that resolves with the results:
+
+```typescript
+// The fully-annotated type for the `execute` method’s return type
+type StatementOptionMethodResult<RowType> = {
+  statement: PromisifiedRowStatement;
+  resultsPromise: Promise<Array<RowType> | undefined>;
+};
+```
+
+This means that the caller has immediate access to the Statement object, which can be used to manage the result set, while the results are a `Promise`, which can be awaited.
+
+## SDK Compatibility
+
+We have improved compatibility with the Snowflake SDK compared to the original library.
+
+The new version of the library makes the Snowflake SDK a `peerDependency` instead of a direct dependency. This prevents version conflicts and allows use of newer SDK versions.
+
+In addition, authentication and other core functionality are no longer passed through the helper library, but are handled directly by the Snowflake SDK itself, reducing compatibility concerns as Snowflake’s authentication requirements evolve.
+
+## Compatibility with Previous Versions
+
+The API has changed significantly since the previous version.
+
+The previous version used `Snowflake`, `Connection`, and `Statement` objects that acted as proxies over the SDK. These objects gradually fell behind SDK updates over time.
+
+For backward compatibility, these objects are still available. While your existing code will continue to work, we recommend migrating to the new API for better future compatibility.
+
+For details, see the [Migration Guide](../migration-guide).
+
+## TypeScript Compatibility
+
+We provide TypeScript type definitions for all enhanced SDK methods.
+
+We implemented these type definitions by creating a new `PromisifiedConnection` interface that extends Snowflake’s original `Connection` interface. This approach ensures:
+
+- Regular `Connection` objects don’t display promisified methods in your IDE.
+- `PromisifiedConnection` objects have strongly typed promise-based methods that are displayed in your IDE and validated by TypeScript.
+- `PromisifiedConnection` objects are still fully compatible with the original `Connection` interface.
+  - Remember that you can still use callbacks, even on `PromisifiedConnection` objects, so it is safe to pass them to functions that expect standard `Connection` objects, and TypeScript understands this.

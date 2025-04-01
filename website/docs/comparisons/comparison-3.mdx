@@ -1,0 +1,196 @@
+---
+id: comparison-3-async-queries
+title: "Comparison: Executing a Query (Async)"
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+The Snowflake SDK lets you execute queries asynchronously. Using the Promise Helper Library makes this process significantly easier.
+
+We have two examples here, each based on one of the examples in the SDK documentation.
+
+### First Example
+
+**Without** the Promise Helper Library, to implement the first example:
+
+- Manually wrap the query execution in a `Promise` so that the query ID will be available before the results are streamed.
+- Execute the query with the `asyncExec` option set to `true`.
+- This causes your `complete` callback to be invoked before the query is complete. Within that callback, call `stmt.getQueryId()`, saving it to a variable in an outer scope.
+- In the outer scope, call `connection.getResultsFromQueryId()` with the query ID. This returns a `statement` object.
+- From the `statement` object, get a stream using `statement.streamRows()`.
+- Receive the results of the query by adding callback listeners for `data`, `error`, and `end`.
+
+When you use `asyncExec`, your `complete` callback is invoked before the query is complete. That means it does not receive the `rows` results. That’s why you need to stream the results.
+
+**With** the Promise Helper Library, to implement the first example:
+
+- Execute the query.
+- `await` the results.
+
+### Second Example
+
+**Without** the Promise Helper Library, to implement the second example:
+
+- Manually wrap the query execution in a `Promise` so that the query ID will be available before the results are streamed.
+- Execute the query with the `asyncExec` option set to `true`.
+- This causes your `complete` callback to be invoked before the query is complete. Within that callback, call `stmt.getQueryId()`, saving it to a variable in an outer scope.
+- In the outer scope, implement a timer and poll `connection.getQueryStatus` until the query is complete.
+
+**With** the Promise Helper Library, to implement the second example:
+
+- Execute the query with the `asyncExec` option set to `true`.
+- `await` the resultsPromise to ensure that the statement is ready.
+- Implement a timer and poll `connection.getQueryStatus` until the query is complete.
+
+## Examples
+
+### Example 1
+
+:::tip
+
+- Click "WITHOUT Helper Library" to see the original code
+- Click "WITH Helper Library" to see the improved code using this library
+:::
+
+<Tabs>
+    <TabItem value="example-without" label="WITHOUT Helper Library">
+
+Based on an example [from the Snowflake documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute#execute-queries-asynchronously).
+
+```typescript
+// Not using the Promise Helper Library
+
+let queryId;
+
+// 1. Execute query with asyncExec set to true
+await new Promise((resolve) =>
+{
+  connection.execute({
+    sqlText: 'CALL SYSTEM$WAIT(3, \'SECONDS\')',
+    asyncExec: true,
+    complete: async function (err, stmt, rows)
+    {
+      queryId = stmt.getQueryId(); // Get the query ID
+      resolve();
+    }
+  });
+});
+
+// 2. Get results using the query ID
+const statement = await connection.getResultsFromQueryId({ queryId: queryId });
+await new Promise((resolve, reject) =>
+{
+  var stream = statement.streamRows();
+  stream.on('error', function (err)
+  {
+    reject(err);
+  });
+  stream.on('data', function (row)
+  {
+    console.log(row);
+  });
+  stream.on('end', function ()
+  {
+    resolve();
+  });
+});
+```
+    </TabItem>
+    <TabItem value="example-with" label="WITH Helper Library">
+
+```typescript
+// Using the Promise Helper Library
+
+const { resultsPromise } = await connection.execute({
+  sqlText: `CALL SYSTEM$WAIT(3, 'SECONDS')`,
+});
+
+const results = await resultsPromise;
+console.log(results);
+```
+
+    </TabItem>
+</Tabs>
+
+### Example 2
+
+:::tip
+
+- Click "WITHOUT Helper Library" to see the original code
+- Click "WITH Helper Library" to see the improved code using this library
+:::
+
+<Tabs>
+    <TabItem value="example-without" label="WITHOUT Helper Library">
+
+Based on an example [from the Snowflake documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute#execute-queries-asynchronously).
+
+```typescript
+// Not using the Promise Helper Library
+
+let queryId;
+
+// 1. Execute query with asyncExec set to true
+await new Promise((resolve, reject) =>
+{
+  const statement = connection.execute({
+    sqlText: 'CALL SYSTEM$WAIT(3, \'SECONDS\')',
+    asyncExec: true,
+    complete: async function (err, stmt, rows)
+    {
+      queryId = statement.getQueryId();
+      resolve();
+    }
+  });
+});
+
+// 2. Check query status until it's finished executing
+const seconds = 2;
+let status = await connection.getQueryStatus(queryId);
+while (connection.isStillRunning(status))
+{
+  console.log(`Query status is ${status}, timeout for ${seconds} seconds`);
+
+  await new Promise((resolve) =>
+  {
+    setTimeout(() => resolve(), 1000 * seconds);
+  });
+
+  status = await connection.getQueryStatus(queryId);
+}
+
+console.log(`Query has finished executing, status is ${status}`);
+```
+    </TabItem>
+    <TabItem value="example-with" label="WITH Helper Library">
+
+```typescript
+// Using the Promise Helper Library
+
+import { setInterval } from "timers/promises";
+
+const { statement, resultsPromise } = await connection.execute({
+  sqlText: `CALL SYSTEM$WAIT(3, 'SECONDS')`,
+  asyncExec: true,
+});
+
+// Because we used asyncExec, we will not receive any results from this
+// Promise. But we need to await it to ensure the statement is ready.
+await resultsPromise;
+const queryId = statement.getQueryId();
+
+// Check query status until it’s finished executing
+for await (const iteration_ of setInterval(2000)) {
+  const status = await connection.getQueryStatus(queryId);
+  if (!connection.isStillRunning(status as snowflake.QueryStatus)) {
+    break;
+  }
+}
+
+const status = await connection.getQueryStatus(queryId);
+console.log(`Query has finished executing, status is ${status}`);
+```
+
+    </TabItem>
+</Tabs>

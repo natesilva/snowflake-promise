@@ -16,3 +16,6 @@ test.*
 test.*
 ts*.json
 src
+eslint*
+*.log
+vitest*

@@ -1,0 +1,115 @@
+---
+sidebar_position: 2
+title: Getting Started
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## Installation
+
+Install using npm, yarn, or pnpm (BETA VERSION):
+
+<Tabs>
+    <TabItem value="npm" label="npm">
+
+
+```bash
+npm i snowflake-promise@beta
+```
+
+</TabItem>
+    <TabItem value="yarn" label="yarn">
+
+
+```bash
+yarn add snowflake-promise@beta
+```
+
+</TabItem>
+    <TabItem value="pnpm" label="pnpm">
+
+
+```bash
+pnpm add snowflake-promise@beta
+```
+
+</TabItem>
+</Tabs>
+
+The Snowflake SDK will be automatically installed as a `peerDependency`, if it is not already installed.
+
+## The Basics
+
+### Promisify your Connection
+
+This library’s main function is `promisifyConnection` which augments a Snowflake `Connection` to allow using Promises.
+
+Here’s how to use `promisifyConnection`:
+
+```javascript
+import { promisifyConnection } from 'snowflake-promise';
+
+const connection = promisifyConnection(
+  snowflake.createConnection({
+    account: account,
+    username: user,
+    password: password,
+    application: application,
+  }),
+);
+```
+
+Pass any Snowflake `Connection` object to `promisifyConnection` to receive an **augmented** `PromisifiedConnection` object that supports Promises. Then you can use methods like `connect` and `execute` with Promises:
+
+```javascript
+// The same methods you would have called on the original Connection
+// object, but now they return Promises and don’t need callbacks.
+
+await connection.connect();
+
+const { statement, resultsPromise } = connection.execute({
+    sqlText: 'SELECT * FROM YOUR_TABLE'
+});
+
+const results = await resultsPromise;
+console.log(results);
+```
+
+### Callbacks are still supported
+
+When calling promisified functions like `connect` or `execute`, if you pass a callback, the function will be invoked in callback mode, and will not return a Promise. In other words, existing code that uses callbacks will continue to work exactly as before.
+
+### Promise methods return a `resultsPromise` object
+
+:::tip
+For more details on the Promisified `execute` method, including why it doesn't directly return query results, see the [API documentation](../api-reference/#execute).
+:::
+
+When using Promises, the `execute` method returns an object with a `statement` property and a `resultsPromise` property. Its interface looks like this:
+
+```javascript
+{
+  statement: PromisifiedStatement,
+  resultsPromise: Promise<RowType[] | undefined>
+}
+```
+
+You should await the `resultsPromise` to get the query results:
+
+```typescript
+// The execute method returns an object with a resultsPromise property
+const { resultsPromise } = await connection.execute({
+    sqlText: 'SELECT * FROM YOUR_TABLE'
+});
+
+// Await the resultsPromise to get the query results
+const results = await resultsPromise;
+console.log(results);
+```
+
+### Which methods are promisified?
+
+In addition to `connect` and `execute`, any method that previously required a callback will be promisified.
+
+The full list of methods that are promisified is found in the [API Reference](../api-reference/).

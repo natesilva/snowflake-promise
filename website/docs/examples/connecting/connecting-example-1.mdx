@@ -1,0 +1,48 @@
+---
+id: example-1-connecting-to-snowflake
+title: "Example: Username and Password"
+---
+
+:::danger
+Deprecated and may stop working: Snowflake recommends using External OAuth or Key Pair Authentication.
+
+- [Planning for the deprecation of single-factor password sign-ins](https://docs.snowflake.com/en/user-guide/security-mfa-rollout)
+
+See our [Authentication and MFA](/docs/authentication-and-mfa) guidance.
+:::
+
+
+## Steps
+
+
+1. Create a connection using the standard Snowflake SDK `createConnection` method, but don’t call `connect` or `connectAsync` yet.
+2. After creating the connection, pass it to the Promise Helper library’s `promisifyConnection` method.
+3. On the promisified connection object, await the `connect` method.
+
+
+## Example Code: Username and Password
+
+If you have Multi-Factor Authentication (MFA) enabled, this will send a confirmation request to the Duo app on your device, which you must approve to complete the connection.
+
+
+```typescript
+import { promisifyConnection } from "snowflake-promise";
+import snowflake from "snowflake-sdk";
+
+// Create a Connection using the SDK’s `createConnection` and promisify it
+const connection = promisifyConnection(
+  snowflake.createConnection({
+    account: account,
+    username: user,
+    password: password,
+  }),
+);
+
+// Connect to Snowflake
+try {
+  await connection.connect();
+  console.log("Successfully connected to Snowflake.");
+} catch (err) {
+  console.error("Unable to connect: " + err.message);
+}
+```

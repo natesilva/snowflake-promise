@@ -1,0 +1,72 @@
+---
+id: comparison-2-executing-a-statement
+title: "Comparison: Executing a Statement"
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+This example compares how executing a statement works.
+
+**Without** the Promise Helper Library, you need to provide a callback that handles the execution result. Code outside of the callback can’t tell when the execution is complete. Because of the way that callbacks work, code might not execute in the order you expect.
+
+**With** the Promise Helper Library, you simply await the execution result.
+
+## Examples
+
+:::tip
+- Click “WITHOUT Helper Library” to see the original code
+- Click “WITH Helper Library” to see the improved code using this library
+:::
+
+<Tabs>
+    <TabItem value="example-without" label="WITHOUT Helper Library">
+
+Adapted from [an example in the Snowflake SDK documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute#executing-statements).
+
+```typescript
+// Not using the Promise Helper Library
+
+var statement = connection.execute({
+  sqlText: 'CREATE DATABASE testdb',
+  complete: function(err, stmt, rows) {
+    if (err) {
+      console.error(
+        'Failed to execute statement due to the following error: ' +
+        err.message
+      );
+    } else {
+      console.log('Successfully executed statement: ' + stmt.getSqlText());
+    }
+  }
+});
+
+console.log(
+  'This will likely execute before completion due to async behavior!'
+);
+```
+    </TabItem>
+    <TabItem value="example-with" label="WITH Helper Library">
+
+```typescript
+// Using the Promise Helper Library
+
+try {
+  const { statement, resultsPromise } = await connection.execute({
+    sqlText: 'CREATE DATABASE testdb',
+  });
+  await resultsPromise;
+  console.log('Successfully executed statement: ' + statement.getSqlText());
+} catch (err) {
+  console.error(
+    'Failed to execute statement due to the following error: ' +
+    err.message
+  );
+}
+
+console.log('This will execute after the promise resolves.');
+```
+
+    </TabItem>
+
+</Tabs>

@@ -1,20 +1,12 @@
 {
-  "include": [
-    "src/**/*",
-    "test/**/*"
-  ],
+  "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "build",
-    "target": "ES5",
-    "module": "commonjs",
-    "sourceMap": true,
-    "lib": ["es5", "es2015.promise"],
-    "noImplicitReturns": true,
+    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "skipLibCheck": true,
-    "pretty": true,
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true
-  }
+    "outDir": "./dist/esm",
+    "sourceMap": true,
+    "declaration": true,
+    "rootDir": "."
+  },
+  "exclude": ["node_modules", "dist", "website", "**/examples"]
 }

@@ -1,0 +1,198 @@
+---
+sidebar_position: 3
+title: "API Reference"
+---
+
+## The `promisifyConnection` Function
+
+This library’s main function is `promisifyConnection` which augments a Snowflake `Connection` to allow using Promises. You won’t need any other functions from this library.
+
+Once you’ve promisifed a connection, everything else that you do with Snowflake is done using the standard Snowflake SDK methods, except that you are able to use Promises to handle asynchronous operations.
+
+### What `promisifyConnection` Does
+
+`promisifyConnection` takes a Snowflake `Connection` object and returns a new `PromisifiedConnection` object with the same methods, but adding support for Promises.
+
+The following `Connection` methods are augmented with Promise support:
+
+- [`connect`](#connect)
+- [`connectAsync`](#connectasync)
+- [`destroy`](#destroy)
+- [`execute`](#execute)
+- [`fetchResult`](#fetchresult)
+
+Any `RowStatement` objects returned from promisified methods will have Promise support added to the following method:
+
+- [`cancel`](#cancel)
+
+## `Connection` Methods That Are Promisified by This Library
+
+The methods below are enhanced with Promise support while still allowing callback usage.
+
+:::tip
+The Promise functionality activates automatically when no callback is provided. If a callback is provided, the original, non-promisified, callback-based method is called.
+:::
+---
+
+### `connect`
+
+- Link: [Snowflake SDK Documentation for Connections](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-connect#creating-a-single-connection)
+
+#### TypeScript signature
+
+```typescript
+// original SDK signature
+connect(callback: ConnectionCallback): void;
+
+// promisified signature
+connect(): Promise<Connection>;
+```
+
+#### Usage
+
+After creating a `Connection`, use its `connect` method to connect to Snowflake.
+
+The standard SDK `connect` method accepts a callback function for connection readiness. Because the callback function may not be in the same scope as the calling code, when using callbacks it may be difficult to know when a connection is ready to use. The `connection.isValidAsync()` method can be used to check connection status.
+
+When using Promises, you generally won’t need to call `connection.isValidAsync()` because once the `Promise` resolves, the connection is ready.
+
+---
+
+### `connectAsync`
+
+- Link: [Snowflake SDK Documentation for Connections](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-connect#creating-a-single-connection)
+
+#### TypeScript signature
+
+```typescript
+// original SDK signature
+connectAsync(callback: ConnectionCallback): Promise<void>;
+
+// promisified signature
+connectAsync(): Promise<Connection>;
+```
+
+#### Usage
+
+For authentication types like browser-based SSO (`EXTERNALBROWSER`), you need to use `connectAsync` instead of `connect`.
+
+It works the same way as the standard `connect` method.
+
+---
+
+### `destroy`
+
+- Link: [Snowflake SDK documentation for terminating a connection](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-connect#terminating-a-connection)
+
+#### TypeScript signature
+
+```typescript
+// original SDK signature
+destroy(fn: ConnectionCallback): void;
+
+// promisified signature
+destroy(): Promise<void>;
+```
+
+#### Usage
+
+Use the `destroy` method to end a session and destroy a connection, without waiting for any pending operations to complete.
+
+---
+
+### `execute`
+
+- Link: [Snowflake SDK Documentation for Executing SQL Statements](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute)
+
+#### TypeScript signature
+
+```typescript
+// original SDK signature
+execute(options: StatementOption): RowStatement | FileAndStageBindStatement;
+
+// promisified signature
+execute<RowType>(
+  options: StatementOptionWithoutCallback,
+): { statement: RowStatement; resultsPromise: Promise<RowType[]> };
+
+// Note: FileAndStageBindStatement is a subclass of RowStatement.
+```
+
+#### Usage
+
+`execute` is the main method for executing SQL statements in the Snowflake SDK.
+
+Use `execute` to run SQL queries. It returns an object containing both a `Statement` and a Promise for the results:
+
+```javascript
+const { statement, resultsPromise } = await connection.execute({sqlText });
+```
+
+You can use the `statement` object to manage or cancel long-running queries.
+
+To get the actual query results, you need to await the `resultsPromise`:
+
+```javascript
+const results = await resultsPromise;
+```
+
+:::info
+
+**Why doesn’t the `execute` method directly return the results?**
+
+Instead of returning the results directly, the `execute` method returns both the Statement object and a _Promise_ for the results (instead of the results directly). This gives you more control: you can manage or cancel long-running queries before awaiting the results.
+
+This approach preserves all the functionality of the underlying Snowflake SDK.
+:::
+
+---
+
+### `fetchResult`
+
+- Link: None. Not documented in the Snowflake SDK.
+
+#### TypeScript signature
+
+```typescript
+// original SDK signature
+fetchResult(options: StatementOption): RowStatement | FileAndStageBindStatement;
+
+// promisified signature
+fetchResult<RowType>(
+  options: StatementOptionWithoutCallback,
+): { statement: RowStatement; resultsPromise: Promise<RowType[]> };
+
+// Note: FileAndStageBindStatement is a subclass of RowStatement.
+```
+
+#### Usage
+
+Not documented.
+
+---
+
+## `RowStatement` Methods That Are Promisified by This Library
+
+`connection.execute` returns a `RowStatement` object (and a `resultsPromise`). The `RowStatement` that is returned is promisified. The only method that is promisified is `cancel`.
+
+---
+
+### `cancel`
+
+- Link: [Snowflake SDK documentation for canceling a statement](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute#canceling-statements)
+
+#### TypeScript signature
+
+```typescript
+// original SDK signature
+cancel(callback?: StatementCallback): void;
+
+// promisified signature
+cancel(): Promise<void>;
+```
+
+#### Usage
+
+Use the `cancel` method to cancel a running statement.
+
+---

@@ -1,9 +1,5 @@
-export { Snowflake } from './Snowflake';
-export { Statement } from './Statement';
+// Our main entry point
+export { promisifyConnection } from "./lib/promisify-connection.js";
 
-export { ConnectionOptions } from './types/ConnectionOptions';
-export { ExecuteOptions } from './types/ExecuteOptions';
-export { SnowflakeError } from './types/SnowflakeError';
-export { StatementAlreadyExecutedError } from './types/StatementAlreadyExecutedError';
-export { StatementNotExecutedError } from './types/StatementNotExecutedError';
-export { StreamRowsOptions } from './types/StreamRowsOptions';
+// Legacy entry points
+export * from "./legacy-compatibility/index.js";

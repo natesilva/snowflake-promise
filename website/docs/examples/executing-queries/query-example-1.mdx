@@ -1,0 +1,66 @@
+---
+id: query-example-1
+title: "Example: Basic Query"
+---
+
+## Documentation
+
+- [Snowflake SDK Documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute)
+
+## Prerequisites
+
+- You’ve [established a connection](../../connecting) to Snowflake and promisified it using the `snowflake-promise` library.
+
+## Steps
+
+1. Execute the query.
+2. Await the results.
+
+## Example Code: Basic Query
+
+To make your queries maintainable and to prevent SQL injection attacks, don’t concatenate data into SQL strings. Instead, use `binds`.
+
+```typescript
+const { resultsPromise } = await connection.execute({
+  sqlText: `
+    SELECT COUNT(*) AS QTY
+    FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER
+    WHERE C_MKTSEGMENT = :1;
+  `,
+  binds: ['AUTOMOBILE']
+});
+const results = await resultsPromise;
+console.log(results); // prints: [ { QTY: 29752 } ]
+```
+
+## Example Code: Basic Query with TypeScript Interface
+
+In this query we’re passing the expected row type as an `interface` and getting back strongly-typed results.
+
+```typescript
+// The expected row type for the query results
+interface CustomerCount {
+  C_MKTSEGMENT: string;
+  QTY: number;
+}
+
+// Pass <CustomerCount> to the execute method
+const { resultsPromise } = await connection.execute<CustomerCount>({
+  sqlText: `
+    SELECT C_MKTSEGMENT, COUNT(*) AS QTY
+    FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER
+    GROUP BY C_MKTSEGMENT;
+  `
+});
+
+const results = await resultsPromise;
+
+if (!results) {
+  console.error("No results found");
+} else {
+  for (const result of results) {
+    // We can reference the results in a type-safe manner.
+    console.log(`Market Segment: ${result.C_MKTSEGMENT}, Quantity: ${result.QTY}`);
+  }
+}
+```

@@ -1,0 +1,98 @@
+---
+id: comparison-4-streaming
+title: "Comparison: Streaming Results"
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+The Promise Helper Library handles streams without requiring callbacks or event listeners.
+
+**Without** the Promise Helper Library, to stream results:
+
+- Execute the query with `streamResult` set to `true`.
+- Implement a `complete` callback that receives the statement object.
+- Use `statement.streamRows()` to create a stream.
+- Consume the results.
+  - SDK documentation shows using callbacks on the stream's `readable`, `error`, and `end` events, but async iteration would be simpler.
+
+Because of the way that callbacks work, code might not execute in the order you expect.
+
+**With** the Promise Helper Library, to stream results:
+
+- Execute the query with `streamResult` set to `true`.
+- Use `statement.streamRows()` to create a stream.
+- Use async iteration to consume the results.
+
+
+## Examples
+
+:::tip
+
+- Click "WITHOUT Helper Library" to see the original code
+- Click "WITH Helper Library" to see the improved code using this library
+:::
+
+<Tabs>
+    <TabItem value="example-without" label="WITHOUT Helper Library">
+
+Based on an example from [the Snowflake SDK documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume#streaming-results).
+
+```typescript
+// Not using the Promise Helper Library
+
+connection.execute({
+  sqlText:
+    "select L_COMMENT from SNOWFLAKE_SAMPLE_DATA.TPCH_SF100.LINEITEM limit 100000;",
+  streamResult: true,
+  complete: function (err, stmt) {
+    var stream = stmt.streamRows();
+    // Read data from the stream when it is available
+    stream
+      .on("readable", function (row) {
+        while ((row = this.read()) !== null) {
+          console.log(row);
+        }
+      })
+      .on("end", function () {
+        console.log("done");
+      })
+      .on("error", function (err) {
+        console.log(err);
+      });
+  },
+});
+
+console.log(
+  'This will likely execute before completion due to async behavior!'
+);
+```
+    </TabItem>
+    <TabItem value="example-with" label="WITH Helper Library">
+
+```typescript
+// Using the Snowflake-Promise Library
+
+const { statement } = connection.execute({
+  sqlText:
+    "select L_COMMENT from SNOWFLAKE_SAMPLE_DATA.TPCH_SF100.LINEITEM limit 100000;",
+  streamResult: true,
+});
+
+try {
+  const stream = statement.streamRows();
+  // Async iteration
+  for await (const row of stream) {
+    console.log(row);
+  }
+  console.log("done");
+} catch (error) {
+  console.error(error);
+}
+
+console.log('This will execute after streaming completes.');
+```
+
+    </TabItem>
+
+</Tabs>

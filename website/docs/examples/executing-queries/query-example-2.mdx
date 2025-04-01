@@ -1,0 +1,69 @@
+---
+id: query-example-2
+title: "Example: Streaming Query"
+---
+
+## Documentation
+
+- [Snowflake SDK Documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume#streaming-results)
+
+## Introduction
+
+To process a large set of Snowflake results, use streaming. This lets you process huge datasets without loading the entire dataset into memory.
+
+Without streaming, all results load into memory at once, which can be inefficient or cause an out-of-memory error.
+
+With streaming, the results are served in batches, allowing you to process one row at a time.
+
+### Making streams easier to use
+
+Examples in the Snowflake SDK documentation use stream events such as `on("data")` and `on("end")`.
+
+Streaming is now much easier with async iteration (`for await`), as shown in the example below.
+
+## Prerequisites
+
+- You’ve [established a connection](../../connecting) to Snowflake and promisified it using the `snowflake-promise` library.
+
+## Steps
+
+1. Execute the query, setting the `streamResult` option to `true`.
+2. Create a stream from the statement that’s returned.
+3. Consume the stream results.
+
+## Example Code: Streaming a Query
+
+```typescript
+// Optional: TypeScript definition for the row type that we will
+// receive from the query
+interface Customer {
+  C_CUSTKEY: number;
+  C_NAME: string;
+  C_PHONE: string;
+  C_ACCTBAL: number;
+}
+
+const { statement } = await connection.execute<Customer>({
+  sqlText: `
+    SELECT C_CUSTKEY, C_NAME, C_PHONE, C_ACCTBAL
+    FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER
+    WHERE C_MKTSEGMENT = :1;
+  `,
+  binds: ['AUTOMOBILE'],
+  streamResult: true
+});
+
+// Create a stream from the statement that’s returned.
+// You can process all of the rows, or you can process a subset of them
+// by passing the `start` and `end` options. Either way, you are
+// efficiently served one row at a time.
+const stream = statement.streamRows({
+  start: 250,
+  end: 300
+});
+
+// Consume the stream one row at a time using async iteration
+for await (const row of stream) {
+  console.log(row);
+}
+```
