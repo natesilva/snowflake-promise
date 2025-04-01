@@ -1,8 +1,29 @@
 # snowflake-promise [![npm](https://img.shields.io/npm/v/snowflake-promise.svg)](https://www.npmjs.com/package/snowflake-promise) [![node](https://img.shields.io/node/v/snowflake-promise.svg)](https://www.npmjs.com/package/snowflake-promise)
 
-A Promise-based interface to your [Snowflake](https://www.snowflake.net/) data warehouse.
+A modern, Promise-based interface for the [Snowflake](https://www.snowflake.net/) Node.js SDK with full TypeScript support.
 
-This is a wrapper for the [Snowflake SDK](https://www.npmjs.com/package/snowflake-sdk) for Node.js. It provides a Promise-based API instead of the core callback-based API.
+---
+
+## v5 Beta Now Available!
+
+Version 5 is a complete rewrite with improved TypeScript support while maintaining full backwards compatibility.
+
+📚 [Full Documentation for v5 beta](https://natesilva.github.io/snowflake-promise/docs/)
+
+📦 Install v5 beta: `npm i snowflake-promise@beta`
+
+### v5 Features
+
+- Clean Promise-based API
+- Full TypeScript support
+- Backwards compatible with the previous version of this library
+- Legacy callback API compatibility
+- Modern ESM/CJS dual package support
+- 100% test coverage
+
+---
+
+The documentation below covers **version 4**, the current stable version of the library.
 
 ## Installation
 
