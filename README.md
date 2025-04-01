@@ -8,8 +8,9 @@ A modern, Promise-based interface for the [Snowflake](https://www.snowflake.net/
 
 Version 5 is a complete rewrite with improved TypeScript support while maintaining full backwards compatibility.
 
-📚 [Full Documentation](https://natesilva.github.io/snowflake-promise/docs/)
-📦 `npm i snowflake-promise@beta`
+📚 [Full Documentation for v5 beta](https://natesilva.github.io/snowflake-promise/docs/)
+
+📦 Install v5 beta: `npm i snowflake-promise@beta`
 
 ### v5 Features
 
