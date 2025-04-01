@@ -27,6 +27,9 @@
       }
     }
   },
+  "files": [
+    "dist/**"
+  ],
   "scripts": {
     "clean": "del-cli dist",
     "build": "npm run build:esm && npm run build:cjs",
