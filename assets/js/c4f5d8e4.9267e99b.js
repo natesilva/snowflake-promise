@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunksnowflake_promise_website=self.webpackChunksnowflake_promise_website||[]).push([[2634],{9179:(e,s,o)=>{o.r(s),o.d(s,{default:()=>a});o(6540);var r=o(6347),n=o(9030),t=o(4848);function a(){return(0,t.jsx)(r.rd,{to:(0,n.Ay)("snowflake-promise/docs/")})}}}]);

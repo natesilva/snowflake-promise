@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksnowflake_promise_website=self.webpackChunksnowflake_promise_website||[]).push([[2634],{9179:(e,s,r)=>{r.r(s),r.d(s,{default:()=>u});r(6540);var t=r(6347),n=r(9030),o=r(4848);function u(){return(0,o.jsx)(t.rd,{to:(0,n.Ay)("docs/")})}}}]);
