@@ -62,7 +62,9 @@
     "node": "18.20.7"
   },
   "dependencies": {
-    "snowflake-sdk": "^2.0.3",
     "type-fest": "^4.37.0"
+  },
+  "peerDependencies": {
+    "snowflake-sdk": "^2.0.3"
   }
 }
