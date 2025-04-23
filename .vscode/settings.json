@@ -12,7 +12,6 @@
     "**/cache": true,
     "sessions.db": true
   },
-  "tslint.autoFixOnSave": true,
   "typescript.tsdk": "./node_modules/typescript/lib",
   "search.useIgnoreFilesByDefault": true,
   "files.defaultLanguage": "typescript",
