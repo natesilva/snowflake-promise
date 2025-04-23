@@ -125,7 +125,7 @@ execute<RowType>(
 Use `execute` to run SQL queries. It returns an object containing both a `Statement` and a Promise for the results:
 
 ```javascript
-const { statement, resultsPromise } = await connection.execute({ sqlText });
+const { statement, resultsPromise } = connection.execute({ sqlText });
 ```
 
 You can use the `statement` object to manage or cancel long-running queries.

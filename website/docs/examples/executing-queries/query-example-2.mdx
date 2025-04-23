@@ -43,7 +43,7 @@ interface Customer {
   C_ACCTBAL: number;
 }
 
-const { statement } = await connection.execute<Customer>({
+const { statement } = connection.execute<Customer>({
   sqlText: `
     SELECT C_CUSTKEY, C_NAME, C_PHONE, C_ACCTBAL
     FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER

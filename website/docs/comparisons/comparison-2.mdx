@@ -52,7 +52,7 @@ console.log(
 // Using the Promise Helper Library
 
 try {
-  const { statement, resultsPromise } = await connection.execute({
+  const { statement, resultsPromise } = connection.execute({
     sqlText: 'CREATE DATABASE testdb',
   });
   await resultsPromise;

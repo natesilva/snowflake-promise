@@ -102,8 +102,8 @@ You should await the `resultsPromise` to get the query results:
 
 ```typescript
 // The execute method returns an object with a resultsPromise property
-const { resultsPromise } = await connection.execute({
-    sqlText: 'SELECT * FROM YOUR_TABLE'
+const { resultsPromise } = connection.execute({
+  sqlText: "SELECT * FROM YOUR_TABLE",
 });
 
 // Await the resultsPromise to get the query results

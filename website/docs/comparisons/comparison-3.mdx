@@ -102,7 +102,7 @@ await new Promise((resolve, reject) =>
 ```typescript
 // Using the Promise Helper Library
 
-const { resultsPromise } = await connection.execute({
+const { resultsPromise } = connection.execute({
   sqlText: `CALL SYSTEM$WAIT(3, 'SECONDS')`,
 });
 

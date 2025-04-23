@@ -21,7 +21,7 @@ title: "Example: Basic Query"
 To make your queries maintainable and to prevent SQL injection attacks, don’t concatenate data into SQL strings. Instead, use `binds`.
 
 ```typescript
-const { resultsPromise } = await connection.execute({
+const { resultsPromise } = connection.execute({
   sqlText: `
     SELECT COUNT(*) AS QTY
     FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER
@@ -45,7 +45,7 @@ interface CustomerCount {
 }
 
 // Pass <CustomerCount> to the execute method
-const { resultsPromise } = await connection.execute<CustomerCount>({
+const { resultsPromise } = connection.execute<CustomerCount>({
   sqlText: `
     SELECT C_MKTSEGMENT, COUNT(*) AS QTY
     FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER
