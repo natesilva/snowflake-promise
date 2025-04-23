@@ -13,34 +13,52 @@ Install using npm, yarn, or pnpm:
 <Tabs>
     <TabItem value="npm" label="npm">
 
-
 ```bash
-# this version is still in beta
-npm i snowflake-promise@beta
+npm i snowflake-promise
 ```
 
 </TabItem>
     <TabItem value="yarn" label="yarn">
 
-
 ```bash
-# this version is still in beta
-yarn add snowflake-promise@beta
+yarn add snowflake-promise
 ```
 
 </TabItem>
     <TabItem value="pnpm" label="pnpm">
 
-
 ```bash
-# this version is still in beta
-pnpm add snowflake-promise@beta
+pnpm add snowflake-promise
 ```
 
 </TabItem>
 </Tabs>
 
-The Snowflake SDK will be automatically installed as a `peerDependency`, if it is not already installed.
+This library requires the official `snowflake-sdk` as a `peerDependency`. While some package managers (like npm v7+) may install it automatically, you can also explicitly install it:
+
+<Tabs>
+    <TabItem value="npm" label="npm">
+
+```bash
+npm i snowflake-sdk
+```
+
+</TabItem>
+    <TabItem value="yarn" label="yarn">
+
+```bash
+yarn add snowflake-sdk
+```
+
+</TabItem>
+    <TabItem value="pnpm" label="pnpm">
+
+```bash
+pnpm add snowflake-sdk
+```
+
+</TabItem>
+</Tabs>
 
 ## The Basics
 
@@ -51,7 +69,7 @@ This library’s main function is `promisifyConnection` which augments a Snowfla
 Here’s how to use `promisifyConnection`:
 
 ```javascript
-import { promisifyConnection } from 'snowflake-promise';
+import { promisifyConnection } from "snowflake-promise";
 
 const connection = promisifyConnection(
   snowflake.createConnection({
@@ -72,7 +90,7 @@ Pass any Snowflake `Connection` object to `promisifyConnection` to receive an **
 await connection.connect();
 
 const { statement, resultsPromise } = connection.execute({
-    sqlText: 'SELECT * FROM YOUR_TABLE'
+  sqlText: "SELECT * FROM YOUR_TABLE",
 });
 
 const results = await resultsPromise;
@@ -86,7 +104,7 @@ When calling promisified functions like `connect` or `execute`, if you pass a ca
 ### Promise methods return a `resultsPromise` object
 
 :::tip
-For more details on the Promisified `execute` method, including why it doesn't directly return query results, see the [API documentation](../api-reference/#execute).
+For more details on the Promisified `execute` method, including why it doesn’t directly return query results, see the [API documentation](../api-reference/#execute).
 :::
 
 When using Promises, the `execute` method returns an object with a `statement` property and a `resultsPromise` property. Its interface looks like this:

@@ -4,32 +4,31 @@ A modern, Promise-based interface for the [Snowflake](https://www.snowflake.net/
 
 ---
 
-## v5 Beta Now Available!
+## Version 5
 
-Version 5 is a complete rewrite with improved TypeScript support while maintaining full backwards compatibility.
+Version 5 is a complete rewrite with improved TypeScript support while maintaining full backwards compatibility with previous versions of `snowflake-promise` and the underlying `snowflake-sdk`'s callback API.
 
-📚 [Full Documentation for v5 beta](https://natesilva.github.io/snowflake-promise/docs/)
+📚 [Full Documentation](https://natesilva.github.io/snowflake-promise/docs/)
 
-📦 Install v5 beta: `npm i snowflake-promise@beta`
+📦 Install: `npm i snowflake-promise` (or `npm i snowflake-promise@beta` for pre-releases)
 
-### v5 Features
+### Features
 
-- Clean Promise-based API
+- Clean Promise-based API using `promisifyConnection`
 - Full TypeScript support
-- Backwards compatible with the previous version of this library
-- Legacy callback API compatibility
+- Backwards compatible with the previous `Snowflake` class API
+- Compatibility layer for the legacy `snowflake-sdk` callback API
 - Modern ESM/CJS dual package support
 - 100% test coverage
 
 ---
 
-The documentation below covers version 4, the current stable version of the library.
-
 ## Installation
 
 - `npm i snowflake-promise`
+- Ensure you have `snowflake-sdk` installed as well (`npm i snowflake-sdk`)
 
-## Basic usage
+## Basic Usage (`promisifyConnection` API - Recommended)
 
 ```typescript
 import snowflakeSdk from "snowflake-sdk";
@@ -67,32 +66,17 @@ async function main() {
 main();
 ```
 
-## Connecting
+See the [Full Documentation](https://natesilva.github.io/snowflake-promise/docs/) for more details on:
 
-The constructor takes up to three arguments:
+- Authentication options (MFA, Key Pair, OAuth, etc.)
+- Executing queries and handling results
+- Streaming rows
+- Using the legacy `Snowflake` class API
+- Using the `snowflake-sdk` callback compatibility layer
+- Migration from previous versions
 
-`new Snowflake(connectionOptions, [ loggingOptions, [ configureOptions ] ])`
+## Documentation Website
 
-- `connectionOptions`
-  - Supported options are here: <https://docs.snowflake.net/manuals/user-guide/nodejs-driver-use.html#required-connection-options>
-- `loggingOptions`
-  - `logSql` (optional, function): If provided, this function will be called to log SQL
-    statements. For example, set `logSql` to `console.log` to log all issued SQL
-    statements to the console.
-  - `logLevel` (optional: `'error' | 'warn' | 'debug' | 'info' | 'trace'`): Turns on
-    SDK-level logging.
-- `configureOptions`
-  - `ocspFailOpen` (optional, boolean) (default: `true`): Enables OCSP fail-open
-    functionality. See <https://www.snowflake.com/blog/latest-changes-to-how-snowflake-handles-ocsp/> for more information.
+For comprehensive documentation, including API references, examples, and guides, please visit the documentation website:
 
-## More examples
-
-- [Using promisifyConnection API (Recommended)](examples/promisifyConnection.ts)
-- [Streaming result rows](examples/streaming.js)
-- [Using traditional Promise `then` syntax (and older versions of Node.js)](examples/oldSchool.js)
-  - Node v6.9.5 is the oldest supported version
-- [Turn on logging](examples/logging.js)
-
-## Documentation
-
-- [Migration Guide](docs/migration-guide.md) - How to migrate from the legacy API to the newer `promisifyConnection` API
+[https://natesilva.github.io/snowflake-promise/docs/](https://natesilva.github.io/snowflake-promise/docs/)

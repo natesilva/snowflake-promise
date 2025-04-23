@@ -14,7 +14,7 @@ The Promise Helper Library handles streams without requiring callbacks or event 
 - Implement a `complete` callback that receives the statement object.
 - Use `statement.streamRows()` to create a stream.
 - Consume the results.
-  - SDK documentation shows using callbacks on the stream's `readable`, `error`, and `end` events, but async iteration would be simpler.
+  - SDK documentation shows using callbacks on the stream’s `readable`, `error`, and `end` events, but async iteration would be simpler.
 
 Because of the way that callbacks work, code might not execute in the order you expect.
 
@@ -24,14 +24,13 @@ Because of the way that callbacks work, code might not execute in the order you 
 - Use `statement.streamRows()` to create a stream.
 - Use async iteration to consume the results.
 
-
 ## Examples
 
 :::tip
 
 - Click "WITHOUT Helper Library" to see the original code
 - Click "WITH Helper Library" to see the improved code using this library
-:::
+  :::
 
 <Tabs>
     <TabItem value="example-without" label="WITHOUT Helper Library">
@@ -63,10 +62,9 @@ connection.execute({
   },
 });
 
-console.log(
-  'This will likely execute before completion due to async behavior!'
-);
+console.log("This will likely execute before completion due to async behavior!");
 ```
+
     </TabItem>
     <TabItem value="example-with" label="WITH Helper Library">
 
@@ -90,7 +88,7 @@ try {
   console.error(error);
 }
 
-console.log('This will execute after streaming completes.');
+console.log("This will execute after streaming completes.");
 ```
 
     </TabItem>

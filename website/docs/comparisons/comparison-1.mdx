@@ -8,16 +8,17 @@ import TabItem from "@theme/TabItem";
 
 This example shows how connecting to Snowflake works.
 
-**Without** the Promise Helper Library, you provide a callback that handles the connection result. Code outside of the callback can't tell when the connection is established, so you should call `connection.isValidAsync()` to check if the connection is ready for queries.
+**Without** the Promise Helper Library, you provide a callback that handles the connection result. Code outside of the callback can’t tell when the connection is established, so you should call `connection.isValidAsync()` to check if the connection is ready for queries.
 
 **With** the Promise Helper Library, you simply await the connection.
 
 ## Examples
 
 :::tip
+
 - Click “WITHOUT Helper Library” to see the original code
 - Click “WITH Helper Library” to see the improved code using this library
-:::
+  :::
 
 <Tabs>
     <TabItem value="example-without" label="WITHOUT Helper Library">

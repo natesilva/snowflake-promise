@@ -1,6 +1,22 @@
-⚠️ Release notes are now found on GitHub:
+⚠️ Full release notes are found on GitHub:
 
 <https://github.com/natesilva/snowflake-promise/releases>
+
+Recent release notes follow:
+
+---
+
+## 5.0.0 (Beta)
+
+- Complete rewrite with a focus on modern JavaScript (ESM/CJS dual package) and improved TypeScript support.
+- Introduced `promisifyConnection` as the primary recommended API.
+- Maintained backwards compatibility with the legacy `Snowflake` class API.
+- Added a compatibility layer for the original `snowflake-sdk` callback-style API.
+- Requires Node.js v18+.
+- 100% test coverage.
+- See the [v5.0.0 Release Notes](https://github.com/natesilva/snowflake-promise/releases/tag/v5.0.0-beta.2) on GitHub for full details.
+
+---
 
 Older release notes follow:
 
