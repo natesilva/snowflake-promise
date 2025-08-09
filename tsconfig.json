@@ -8,5 +8,12 @@
     "declaration": true,
     "rootDir": "."
   },
-  "exclude": ["node_modules", "dist", "website", "**/examples"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "website",
+    "**/examples",
+    "**/*.test.ts",
+    "**/tests/**"
+  ]
 }
