@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi } from "vitest";
-import { promisifyOptionsCallbackFunction } from "./promisify-options-callback-function.js";
+import { promisifyOptionsCallbackFunction } from "../promisify-options-callback-function.ts";
 import type { Connection } from "snowflake-sdk";
 
 describe("promisifyOptionsCallbackFunction", () => {

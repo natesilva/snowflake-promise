@@ -1,7 +1,7 @@
 import type { Connection, ConnectionCallback, RowStatement } from "snowflake-sdk";
-import snowflake from "snowflake-sdk";
-import { SetRequired } from "type-fest";
-import { PromisifiedRowStatement } from "./promisified-row-statement.js";
+import type snowflake from "snowflake-sdk";
+import type { SetRequired } from "type-fest";
+import type { PromisifiedRowStatement } from "./promisified-row-statement.ts";
 
 // Helper definitions to simplify the interface declaration below
 type StatementOptionWithoutCallback = Omit<snowflake.StatementOption, "complete">;

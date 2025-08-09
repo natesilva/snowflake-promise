@@ -1,8 +1,11 @@
 {
   "name": "snowflake-promise",
-  "version": "5.0.0-beta.2",
+  "version": "5.0.0-beta.3",
   "description": "A Promise-based, TypeScript-friendly helper for the Snowflake SDK",
-  "repository": "github:natesilva/snowflake-promise",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/natesilva/snowflake-promise.git"
+  },
   "bugs": "https://github.com/natesilva/snowflake-promise/issues",
   "license": "MIT",
   "author": "Nate Silva <nate@natesilva.com>",
@@ -18,12 +21,12 @@
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/esm/src/index.d.ts",
-        "default": "./dist/esm/src/index.js"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
       },
       "require": {
-        "types": "./dist/cjs/src/index.d.ts",
-        "default": "./dist/cjs/src/index.js"
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
       }
     }
   },
@@ -31,40 +34,41 @@
     "dist/**"
   ],
   "scripts": {
-    "clean": "del-cli dist",
-    "build": "npm run build:esm && npm run build:cjs",
-    "build:esm": "tsc && echo '{\"type\":\"module\"}' > dist/esm/package.json",
-    "build:cjs": "tsc -p tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
-    "prepublishOnly": "npm run build",
+    "clean": "del-cli dist coverage",
+    "build": "tsup",
+    "prepublishOnly": "npm run clean && npm run build",
+    "prettier": "prettier --write \"{src,test}/**/*.?(ts|json)\"",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest --ui --coverage.enabled=true",
     "test:coverage": "vitest run --coverage"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
-    "@tsconfig/node18": "^18.2.4",
-    "@types/node": "^18.19.80",
+    "@tsconfig/node-ts": "^23.6.1",
+    "@tsconfig/node20": "^20.1.6",
+    "@types/node": "^20.19.10",
     "@vitest/coverage-v8": "^3.0.9",
     "@vitest/ui": "^3.0.9",
     "del-cli": "^6.0.0",
     "eslint": "^9.22.0",
     "prettier": "^3.5.3",
+    "tsup": "^8.5.0",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.26.1",
     "vitest": "^3.0.9"
   },
   "volta": {
-    "node": "18.20.7"
+    "node": "20.19.4"
   },
   "dependencies": {
     "type-fest": "^4.37.0"
   },
   "peerDependencies": {
-    "snowflake-sdk": "^2.0.3"
+    "snowflake-sdk": "^2.1.3"
   }
 }

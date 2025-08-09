@@ -1,12 +1,12 @@
 import { strict as assert } from "node:assert";
 import type { Readable } from "node:stream";
 import type { Connection, RowStatement } from "snowflake-sdk";
-import { promisifyConnection } from "../lib/promisify-connection.js";
-import type { PromisifiedConnection } from "../types/promisified-connection.js";
-import { StatementAlreadyExecutedError } from "./index.js";
-import type { ExecuteOptions } from "./types/ExecuteOptions.js";
-import { StatementNotExecutedError } from "./types/StatementNotExecutedError.js";
-import type { StreamRowsOptions } from "./types/StreamRowsOptions.js";
+import { promisifyConnection } from "../lib/promisify-connection.ts";
+import type { PromisifiedConnection } from "../types/promisified-connection.ts";
+import { StatementAlreadyExecutedError } from "./index.ts";
+import type { ExecuteOptions } from "./types/ExecuteOptions.ts";
+import { StatementNotExecutedError } from "./types/StatementNotExecutedError.ts";
+import type { StreamRowsOptions } from "./types/StreamRowsOptions.ts";
 
 /**
  * @deprecated Use the standard Snowflake SDK. First get a connection and then call
@@ -19,13 +19,17 @@ export class Statement {
   private executePromise?: Promise<void>;
   private stmt?: RowStatement;
   private rows?: unknown[];
+  private readonly executeOptions: ExecuteOptions;
+  private readonly logSql: ((sqlText: string) => void) | undefined;
 
   constructor(
     connection: Connection,
-    private readonly executeOptions: ExecuteOptions,
-    private readonly logSql?: (sqlText: string) => void,
+    executeOptions: ExecuteOptions,
+    logSql?: (sqlText: string) => void,
   ) {
     this.connection = promisifyConnection(connection);
+    this.executeOptions = executeOptions;
+    this.logSql = logSql;
   }
 
   execute() {

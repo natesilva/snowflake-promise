@@ -1,7 +1,7 @@
 import type { Connection } from "snowflake-sdk";
-import { promisifyOptionsCallbackFunction } from "./promisify-options-callback-function.js";
-import { promisifyOrNot } from "./promisify-or-not.js";
-import { PromisifiedConnection } from "../types/promisified-connection.js";
+import { promisifyOptionsCallbackFunction } from "./promisify-options-callback-function.ts";
+import { promisifyOrNot } from "./promisify-or-not.ts";
+import type { PromisifiedConnection } from "../types/promisified-connection.ts";
 
 /**
  * Given a Snowflake Connection object, returns a proxy with promisified methods.

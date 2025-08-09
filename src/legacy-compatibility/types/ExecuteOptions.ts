@@ -1,4 +1,4 @@
-import { Statement } from "../index.js";
+import type { Statement } from "../index.ts";
 
 export type FetchAsStringTypes = "String" | "Boolean" | "Number" | "Date" | "JSON";
 

@@ -1,6 +1,6 @@
 import type { RowStatement } from "snowflake-sdk";
-import type { PromisifiedRowStatement } from "../types/promisified-row-statement.js";
-import { promisifyOrNot } from "./promisify-or-not.js";
+import type { PromisifiedRowStatement } from "../types/promisified-row-statement.ts";
+import { promisifyOrNot } from "./promisify-or-not.ts";
 
 // Define a type for the callback function expected by promisifyOrNot
 type PromisifyCallback<T> = (error: Error | null, result: T) => void;

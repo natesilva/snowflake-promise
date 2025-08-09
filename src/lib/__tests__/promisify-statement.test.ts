@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi } from "vitest";
-import { promisifyStatement } from "./promisify-statement.js";
+import { promisifyStatement } from "../promisify-statement.ts";
 import type { RowStatement, StatementCallback } from "snowflake-sdk";
 
 describe("promisifyStatement", () => {
@@ -38,7 +38,7 @@ describe("promisifyStatement", () => {
 
       // Mock the promisifyOrNot function at the module level
       vi.spyOn(
-        await import("./promisify-or-not.js"),
+        await import("../promisify-or-not.js"),
         "promisifyOrNot",
       ).mockImplementation(() => {
         return promisifiedCancel;
@@ -116,7 +116,7 @@ describe("promisifyStatement", () => {
 
       // Mock the promisifyOrNot function at the module level
       vi.spyOn(
-        await import("./promisify-or-not.js"),
+        await import("../promisify-or-not.js"),
         "promisifyOrNot",
       ).mockImplementation(() => {
         return promisifiedCancel;
@@ -173,7 +173,7 @@ describe("promisifyStatement", () => {
 
       // Mock the promisifyOrNot function to return our mock and check binding
       vi.spyOn(
-        await import("./promisify-or-not.js"),
+        await import("../promisify-or-not.js"),
         "promisifyOrNot",
       ).mockImplementation(() => {
         // Return a function that checks if it's bound to the mockStatement

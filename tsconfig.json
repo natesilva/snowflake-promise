@@ -1,19 +1,8 @@
 {
-  "extends": "@tsconfig/node18/tsconfig.json",
+  "extends": ["@tsconfig/node20/tsconfig.json", "@tsconfig/node-ts/tsconfig.json"],
   "compilerOptions": {
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "outDir": "./dist/esm",
-    "sourceMap": true,
-    "declaration": true,
-    "rootDir": "."
+    "noEmit": true,
+    "declaration": true
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "website",
-    "**/examples",
-    "**/*.test.ts",
-    "**/tests/**"
-  ]
+  "include": ["src/**/*.ts"]
 }

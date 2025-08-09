@@ -1,4 +1,4 @@
-import { SnowflakeError } from "./SnowflakeError.js";
+import { SnowflakeError } from "./SnowflakeError.ts";
 
 export class StatementAlreadyExecutedError extends SnowflakeError {
   constructor() {

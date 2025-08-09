@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { promisifyOrNot } from "./promisify-or-not.js";
+import { promisifyOrNot } from "../promisify-or-not.ts";
 
 describe("promisifyOrNot", () => {
   // Helper function that takes a callback as its last argument

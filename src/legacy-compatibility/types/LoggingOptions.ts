@@ -1,4 +1,4 @@
-import { LogLevel } from "snowflake-sdk";
+import type { LogLevel } from "snowflake-sdk";
 
 export interface LoggingOptions {
   /** optional function to log SQL statements (e.g. console.log) */

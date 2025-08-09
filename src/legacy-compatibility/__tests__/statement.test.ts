@@ -6,7 +6,7 @@ import {
   StatementAlreadyExecutedError,
   StatementNotExecutedError,
 } from "../index.js";
-import { mockConnection, mockStatement, resetMocks } from "./mocks/snowflake-sdk.mock.js";
+import { mockConnection, mockStatement, resetMocks } from "./mocks/snowflake-sdk.mock.ts";
 
 // Mock the snowflake-sdk module
 vi.mock("snowflake-sdk", async () => {

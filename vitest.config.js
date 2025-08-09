@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     mockReset: true,
     coverage: {
-      exclude: ["**/website/**", "**/examples/**", ...coverageConfigDefaults.exclude],
+      exclude: ["**/website/**", ...coverageConfigDefaults.exclude],
     },
   },
 });

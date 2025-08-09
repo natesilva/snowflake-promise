@@ -1,7 +1,8 @@
 import { Readable } from "stream";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ConnectionOptions, Snowflake } from "../index.js";
-import { mockConnection, mockStatement, resetMocks } from "./mocks/snowflake-sdk.mock.js";
+import type { ConnectionOptions } from "../index.ts";
+import { Snowflake } from "../index.ts";
+import { mockConnection, mockStatement, resetMocks } from "./mocks/snowflake-sdk.mock.ts";
 
 // Mock the snowflake-sdk module
 vi.mock("snowflake-sdk", async () => {

@@ -1,5 +1,5 @@
 import type { Connection, RowStatement, StatementOption } from "snowflake-sdk";
-import { promisifyStatement } from "./promisify-statement.js";
+import { promisifyStatement } from "./promisify-statement.ts";
 
 /**
  * Promisifies Snowflake SDK functions that use the StatementCallback pattern.

@@ -1,11 +1,11 @@
 import SDK from "snowflake-sdk";
-import { promisifyConnection } from "../lib/promisify-connection.js";
-import type { PromisifiedConnection } from "../types/promisified-connection.js";
-import { Statement } from "./statement.js";
-import type { ConfigureOptions } from "./types/ConfigureOptions.js";
-import type { ConnectionOptions } from "./types/ConnectionOptions.js";
-import type { ExecuteOptions } from "./types/ExecuteOptions.js";
-import { toSdkLogLevel, type LoggingOptions } from "./types/LoggingOptions.js";
+import { promisifyConnection } from "../lib/promisify-connection.ts";
+import type { PromisifiedConnection } from "../types/promisified-connection.ts";
+import { Statement } from "./statement.ts";
+import type { ConfigureOptions } from "./types/ConfigureOptions.ts";
+import type { ConnectionOptions } from "./types/ConnectionOptions.ts";
+import type { ExecuteOptions } from "./types/ExecuteOptions.ts";
+import { toSdkLogLevel, type LoggingOptions } from "./types/LoggingOptions.ts";
 
 /**
  * @deprecated Use the standard Snowflake SDK. First get a connection and then call
