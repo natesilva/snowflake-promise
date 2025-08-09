@@ -98,7 +98,7 @@ await new Promise((resolve, reject) => {
 // Using the Promise Helper Library
 
 const { resultsPromise } = connection.execute({
-  sqlText: `CALL SYSTEM$WAIT(3, 'SECONDS')`,
+  sqlText: "CALL SYSTEM$WAIT(3, 'SECONDS')",
 });
 
 const results = await resultsPromise;

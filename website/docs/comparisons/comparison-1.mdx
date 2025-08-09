@@ -8,6 +8,10 @@ import TabItem from "@theme/TabItem";
 
 This example shows how connecting to Snowflake works.
 
+:::info
+Please see the [Authentication and MFA](/docs/authentication-and-mfa) section for information about upcoming changes to the way that Snowflake uses usernames/passwords.
+:::
+
 **Without** the Promise Helper Library, you provide a callback that handles the connection result. Code outside of the callback can’t tell when the connection is established, so you should call `connection.isValidAsync()` to check if the connection is ready for queries.
 
 **With** the Promise Helper Library, you simply await the connection.
