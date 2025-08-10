@@ -37,7 +37,7 @@ connection.execute({
       console.error("Query failed:", err);
       return;
     }
-    
+
     const stream = stmt.streamRows();
     // Complex event-based streaming
     stream
@@ -73,8 +73,7 @@ const { statement } = connection.execute({
 
 try {
   const stream = statement.streamRows();
-  // Using modern for await iteration
-  // (available in both approaches, but pairs well with Promises)
+  // Using modern `for await` iteration
   for await (const row of stream) {
     console.log(row);
   }
