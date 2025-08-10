@@ -18,7 +18,7 @@ Key pair authentication is a Snowflake-recommended method that replaces database
 
 ## How it Works
 
-Key pair authentication uses two keys: a private key (kept secret) and a public key (shared with Snowflake). You add the public key to your Snowflake user account, then use the private key to authenticate.
+Key pair authentication uses two linked keys: a private key (kept secret) and a public key (shared with Snowflake). You add the public key to your Snowflake user account, then use the private key to authenticate.
 
 This is more secure than passwords because the private key never leaves your secure environment - no secrets are transmitted over the network. Instead, your private key signs a JSON Web Token (JWT) that proves your identity to Snowflake, which then verifies the signature using your public key.
 
@@ -36,30 +36,36 @@ This is more secure than passwords because the private key never leaves your sec
 
 ## Generating Keys for Testing
 
-For testing, you can generate a key pair locally using [OpenSSL](https://docs.snowflake.com/en/user-guide/key-pair-auth#generate-the-private-key) (on macOS/Linux) or OpenSSH (on all platforms, including Windows PowerShell).
+For testing, you can generate a key pair locally using [OpenSSL](https://docs.snowflake.com/en/user-guide/key-pair-auth#generate-the-private-key) (on macOS/Linux) or OpenSSH (on all platforms, including Windows).
 
-To generate a private key using OpenSSH, run the following command in your terminal:
+To generate a key pair using OpenSSH (select the commands for your platform):
 
-```bash
+<!--```bash
 ssh-keygen -t rsa -b 2048 -f rsa_key.p8 -m PKCS8; rm rsa_key.p8.pub
 ```
 
 You’ll be prompted for an optional password to protect the private key.
 
-Then generate the corresponding public key (select the command for your platform):
+Then generate the corresponding public key (select the command for your platform):-->
 
 <Tabs>
   <TabItem value="macos-linux" label="macOS/Linux">
 ```bash
-ssh-keygen -f rsa_key.p8 -e -m PKCS8 > rsa_key.pub
+ssh-keygen -t rsa -b 2048 -f rsa_key.p8 -m PKCS8
+ssh-keygen -f rsa_key.p8.pub -e -m pem > rsa_key.pub
+rm rsa_key.p8.pub
 ```
   </TabItem>
-  <TabItem value="windows-powershell" label="Windows PowerShell">
+  <TabItem value="windows-powershell" label="PowerShell (Windows)">
 ```powershell
-ssh-keygen -f rsa_key.p8 -e -m PKCS8 | Out-File -FilePath rsa_key.pub -Encoding ASCII
+ssh-keygen -t rsa -b 2048 -f rsa_key.p8 -m PKCS8
+ssh-keygen -f rsa_key.p8.pub -e -m pem | Out-File -FilePath rsa_key.pub -Encoding ASCII
+rm rsa_key.p8.pub
 ```
   </TabItem>
 </Tabs>
+
+You’ll be prompted for an optional password to protect the private key.
 
 This creates `rsa_key.p8` (a private key) and `rsa_key.pub` (the corresponding public key). [Add the public key to your Snowflake user](https://docs.snowflake.com/en/user-guide/key-pair-auth#grant-the-privilege-to-assign-a-public-key-to-a-snowflake-user).
 
