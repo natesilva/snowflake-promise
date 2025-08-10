@@ -6,7 +6,7 @@ A modern, Promise-based interface for the [Snowflake](https://www.snowflake.net/
 
 ## Promise Support for the Snowflake SDK
 
-With `snowflake-promise`, you can easily use the Snowflake Node.js SDK with Promises and async/await, instead of callbacks.
+With `snowflake-promise`, you can easily use the Snowflake [Node.js SDK](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver) with Promises and async/await, instead of callbacks.
 
 📚 [Full Documentation](https://natesilva.github.io/snowflake-promise/docs/)
 
