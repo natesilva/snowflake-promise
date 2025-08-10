@@ -11,7 +11,7 @@ You can cancel long-running queries using the `cancel()` method on the statement
 
 ## Prerequisites
 
-- You've [established a connection](../../connecting) to Snowflake and promisified it
+- You've [established a connection](../../connecting) to Snowflake and promisified it.
 
 ## Example
 
@@ -32,7 +32,7 @@ console.log("Canceling query...", new Date());
 await statement.cancel();
 console.log("Query canceled successfully");
 
-// Note: If you were awaiting the original query's results, 
+// Note: If you were awaiting the original query's results,
 // it would throw an error when canceled:
 // Error [OperationFailedError]: SQL execution canceled
 ```

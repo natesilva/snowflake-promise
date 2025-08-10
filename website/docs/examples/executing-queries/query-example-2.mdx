@@ -17,7 +17,7 @@ Traditional streaming uses event handlers like `on("data")` and `on("end")`. Thi
 
 ## Prerequisites
 
-- You've [established a connection](../../connecting) to Snowflake and promisified it
+- You've [established a connection](../../connecting) to Snowflake and promisified it.
 
 ## Example
 
@@ -47,7 +47,7 @@ const stream = statement.streamRows({
   end: 300
 });
 
-// Process results one row at a time with for await
+// Process results one row at a time with `for await`
 for await (const row of stream) {
   console.log(`Customer: ${row.C_NAME}, Balance: ${row.C_ACCTBAL}`);
 }
