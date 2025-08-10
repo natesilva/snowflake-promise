@@ -6,29 +6,24 @@ A modern, Promise-based interface for the [Snowflake](https://www.snowflake.net/
 
 ## Version 5
 
-Version 5 is a complete rewrite with improved TypeScript support while maintaining full backwards compatibility with previous versions of `snowflake-promise` and the underlying `snowflake-sdk`'s callback API.
+Version 5 is a complete rewrite with improved TypeScript support while maintaining full backwards compatibility with previous versions of `snowflake-promise` and the underlying `snowflake-sdk`’s callback API.
 
 📚 [Full Documentation](https://natesilva.github.io/snowflake-promise/docs/)
 
-📦 Install: `npm i snowflake-promise` (or `npm i snowflake-promise@beta` for pre-releases)
+📦 Install: `npm i snowflake-promise`
 
 ### Features
 
 - Clean Promise-based API using `promisifyConnection`
 - Full TypeScript support
 - Backwards compatible with the previous `Snowflake` class API
-- Compatibility layer for the legacy `snowflake-sdk` callback API
+- Compatible with the `snowflake-sdk` callback API
 - Modern ESM/CJS dual package support
 - 100% test coverage
 
 ---
 
-## Installation
-
-- `npm i snowflake-promise`
-- Ensure you have `snowflake-sdk` installed as well (`npm i snowflake-sdk`)
-
-## Basic Usage (`promisifyConnection` API - Recommended)
+## Basic Usage
 
 ```typescript
 import snowflakeSdk from "snowflake-sdk";
@@ -71,12 +66,4 @@ See the [Full Documentation](https://natesilva.github.io/snowflake-promise/docs/
 - Authentication options (MFA, Key Pair, OAuth, etc.)
 - Executing queries and handling results
 - Streaming rows
-- Using the legacy `Snowflake` class API
-- Using the `snowflake-sdk` callback compatibility layer
-- Migration from previous versions
-
-## Documentation Website
-
-For comprehensive documentation, including API references, examples, and guides, please visit the documentation website:
-
-[https://natesilva.github.io/snowflake-promise/docs/](https://natesilva.github.io/snowflake-promise/docs/)
+- Backward compatibility and migration from previous versions

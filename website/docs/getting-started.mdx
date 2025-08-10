@@ -34,7 +34,7 @@ pnpm add snowflake-promise
 </TabItem>
 </Tabs>
 
-When you install this library, the official `snowflake-sdk` will be installed automatically as a `peerDependency`. You don’t need to install it yourself. But if you require a specific version of the `snowflake-sdk`, you can install it directly and it will be used. Supported versions are 2.1 or higher within the 2.x series (i.e., >= 2.1 and < 3.0).
+When you install this library, the official `snowflake-sdk` will be installed automatically as a `peerDependency`.
 
 ## Quick Start
 
@@ -51,7 +51,7 @@ const connection = promisifyConnection(
   }),
 );
 
-// Now you can use async/await instead of callbacks
+// Now you can use async/await instead of callbacks!
 await connection.connect();
 const { resultsPromise } = connection.execute({ sqlText: "SELECT * FROM users" });
 const results = await resultsPromise;
@@ -73,7 +73,7 @@ console.log(results);
 The properties of the returned object are:
 
 - `resultsPromise` - await this for your query results
-- `statement` - use for advanced operations like cancellation (can be ignored if you don’t need it)
+- `statement` - use this for advanced operations like cancellation (can be ignored if you don’t need it)
 
 :::tip
 See the [API documentation](../api-reference/#execute) for more details.
@@ -81,4 +81,10 @@ See the [API documentation](../api-reference/#execute) for more details.
 
 ## Backward Compatibility
 
+### Backward compatibility with the callback-based Snowflake SDK
+
 Existing callback-based code continues to work unchanged. When you pass a callback to promisified methods like `connect` or `execute`, they operate in callback mode and don’t return a Promise. This ensures full backward compatibility with existing applications.
+
+### Backward compatibility with previous versions of this library
+
+Code written with previous versions of this library will continue to work thanks to a backwards-compatibility layer. Consider migrating to the new `promisifyConnection` API. See the [Migration Guide](../migration-guide) for details.
