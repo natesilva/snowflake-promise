@@ -34,103 +34,60 @@ pnpm add snowflake-promise
 </TabItem>
 </Tabs>
 
-This library requires the official `snowflake-sdk` as a `peerDependency`. While some package managers (like npm v7+) may install it automatically, you can also explicitly install it:
+This library automatically installs the official `snowflake-sdk` as a `peerDependency`.
 
-<Tabs>
-    <TabItem value="npm" label="npm">
-
-```bash
-npm i snowflake-sdk
-```
-
-</TabItem>
-    <TabItem value="yarn" label="yarn">
-
-```bash
-yarn add snowflake-sdk
-```
-
-</TabItem>
-    <TabItem value="pnpm" label="pnpm">
-
-```bash
-pnpm add snowflake-sdk
-```
-
-</TabItem>
-</Tabs>
+If you require a specific version of the `snowflake-sdk`, you can install it directly and it will be used, as long as it is compatible. Supported versions are 2.1 or higher within the 2.x series (i.e., >= 2.1 and < 3.0).
 
 ## The Basics
 
-### Promisify your Connection
+### Create a Promisified Connection
 
-This library’s main function is `promisifyConnection` which augments a Snowflake `Connection` to allow using Promises.
+This library's main function is `promisifyConnection` which wraps a Snowflake `Connection` to support Promises in addition to the existing callback-based methods.
 
-Here’s how to use `promisifyConnection`:
+First, create a connection using the official `snowflake-sdk`, then pass it to `promisifyConnection`. This returns a **PromisifiedConnection** that supports Promises for all methods that previously required callbacks.
 
 ```javascript
+import snowflake from "snowflake-sdk";
 import { promisifyConnection } from "snowflake-promise";
 
+// Wrap any Snowflake connection to add Promise support
 const connection = promisifyConnection(
-  snowflake.createConnection({
-    account: account,
-    username: user,
-    password: password,
-    application: application,
-  }),
+  snowflake.createConnection({ /* your config */ })
 );
-```
 
-Pass any Snowflake `Connection` object to `promisifyConnection` to receive an **augmented** `PromisifiedConnection` object that supports Promises. Then you can use methods like `connect` and `execute` with Promises:
-
-```javascript
-// The same methods you would have called on the original Connection
-// object, but now they return Promises and don’t need callbacks.
-
+// Now use async/await instead of callbacks!
 await connection.connect();
-
-const { statement, resultsPromise } = connection.execute({
-  sqlText: "SELECT * FROM YOUR_TABLE",
-});
-
+const { resultsPromise } = connection.execute({ sqlText: "SELECT * FROM users" });
 const results = await resultsPromise;
-console.log(results);
 ```
 
-### Callbacks are still supported
+### Understanding the `execute` Method
 
-When calling promisified functions like `connect` or `execute`, if you pass a callback, the function will be invoked in callback mode, and will not return a Promise. In other words, existing code that uses callbacks will continue to work exactly as before.
-
-### Promise methods return a `resultsPromise` object
-
-:::tip
-For more details on the Promisified `execute` method, including why it doesn’t directly return query results, see the [API documentation](../api-reference/#execute).
-:::
-
-When using Promises, the `execute` method returns an object with a `statement` property and a `resultsPromise` property. Its interface looks like this:
-
-```javascript
-{
-  statement: PromisifiedStatement,
-  resultsPromise: Promise<RowType[] | undefined>
-}
-```
-
-You should await the `resultsPromise` to get the query results:
+The `execute` method returns an object with two properties, but most of the time you only need one of them:
 
 ```typescript
-// The execute method returns an object with a resultsPromise property
 const { resultsPromise } = connection.execute({
   sqlText: "SELECT * FROM YOUR_TABLE",
 });
 
-// Await the resultsPromise to get the query results
 const results = await resultsPromise;
 console.log(results);
 ```
 
-### Which methods are promisified?
+The returned object contains:
+- `resultsPromise`: The Promise that resolves to your query results (this is what you want most of the time)
+- `statement`: A statement object for advanced operations (you can usually ignore this)
 
-In addition to `connect` and `execute`, any method that previously required a callback will be promisified.
+:::tip
+For more details on the `execute` method and when you might need the `statement` object, see the [API documentation](../api-reference/#execute).
+:::
 
-The full list of methods that are promisified is found in the [API Reference](../api-reference/).
+### Backward Compatibility
+
+Existing callback-based code continues to work unchanged. When you pass a callback to promisified methods like `connect` or `execute`, they operate in callback mode and don't return a Promise.
+
+### Available Methods
+
+All connection methods that previously required callbacks are now promisified, including `connect`, `execute`, and others.
+
+For the complete list of promisified methods, see the [API Reference](../api-reference/).

@@ -1,20 +1,23 @@
 ---
-id: migration-guide
+sidebar_position: 8
 title: "Legacy Migration Guide"
 ---
 
-# Migration Guide
-## Migrating From the Legacy API to `promisifyConnection`
+This guide explains how to migrate from the legacy API (using `Snowflake` and `Statement` classes) to the current `promisifyConnection` API.
 
-This guide explains how to migrate from the legacy compatibility API (using `Snowflake` and `Statement` classes) to the newer `promisifyConnection` API.
+:::tip
+The legacy API remains functional for backward compatibility, but we recommend migrating to `promisifyConnection` for new development and better future compatibility.
+:::
 
-> **Note**: The legacy API (`Snowflake` and `Statement` classes) remains functional but we recommend using the newer `promisifyConnection` API for new development. This guide helps you migrate to the recommended approach.
+## Why Migrate?
 
-## Overview
+The original library provided `Snowflake` and `Statement` wrapper classes around the Snowflake SDK. The current approach uses `promisifyConnection` to enhance the standard SDK directly.
 
-This library package originally provided a Promise-based wrapper around the callback-based portions of the Snowflake SDK through the `Snowflake` and `Statement` classes. These classes are now deprecated in favor of using the standard Snowflake SDK directly with the `promisifyConnection` function.
-
-The newer approach is more aligned with the standard Snowflake SDK.
+Benefits of the new approach:
+- **Better SDK alignment**: Works directly with the official Snowflake SDK
+- **Improved compatibility**: Stays current with SDK updates automatically
+- **Less overhead**: Minimal wrapper code for better performance
+- **Future-proof**: Less likely to break with SDK changes
 
 ## Migration Steps
 
@@ -38,46 +41,7 @@ import { promisifyConnection } from "snowflake-promise";
 **Legacy API:**
 
 ```typescript
-const snowflake = new Snowflake(
-  {
-    account: "<account name>",
-    username: "<username>",
-    password: "<password>",
-    database: "SNOWFLAKE_SAMPLE_DATA",
-    schema: "TPCH_SF1",
-    warehouse: "DEMO_WH",
-  },
-  {
-    // Optional logging options
-    logLevel: "trace",
-    logSql: console.log,
-  },
-  {
-    // Optional configure options
-    ocspFailOpen: true,
-  },
-);
-
-await snowflake.connect();
-```
-
-**New API:**
-
-```typescript
-// Configure the SDK if needed (equivalent to the third parameter
-// in the legacy constructor)
-snowflakeSdk.configure({
-  ocspFailOpen: true,
-});
-
-// Set log level if needed (part of the second parameter in the
-// legacy constructor)
-if (logLevel) {
-  snowflakeSdk.configure({ logLevel: logLevel });
-}
-
-// Create the connection
-const connection = snowflakeSdk.createConnection({
+const snowflake = new Snowflake({
   account: "<account name>",
   username: "<username>",
   password: "<password>",
@@ -86,11 +50,24 @@ const connection = snowflakeSdk.createConnection({
   warehouse: "DEMO_WH",
 });
 
-// Promisify the connection
-const promisifiedConnection = promisifyConnection(connection);
+await snowflake.connect();
+```
 
-// Connect
-await promisifiedConnection.connect();
+**New API:**
+
+```typescript
+const connection = promisifyConnection(
+  snowflakeSdk.createConnection({
+    account: "<account name>",
+    username: "<username>",
+    password: "<password>",
+    database: "SNOWFLAKE_SAMPLE_DATA",
+    schema: "TPCH_SF1",
+    warehouse: "DEMO_WH",
+  })
+);
+
+await connection.connect();
 ```
 
 ### 3. Executing Queries
@@ -98,19 +75,17 @@ await promisifiedConnection.connect();
 **Legacy API:**
 
 ```typescript
-// Simple query execution
 const rows = await snowflake.execute(
-  "SELECT COUNT(*) FROM CUSTOMER WHERE C_MKTSEGMENT=:1",
-  ["AUTOMOBILE"],
+  "SELECT COUNT(*) FROM CUSTOMER WHERE C_MKTSEGMENT=?",
+  ["AUTOMOBILE"]
 );
 ```
 
 **New API:**
 
 ```typescript
-// Simple query execution
-const { resultsPromise } = promisifiedConnection.execute({
-  sqlText: "SELECT COUNT(*) FROM CUSTOMER WHERE C_MKTSEGMENT=:1",
+const { resultsPromise } = connection.execute({
+  sqlText: "SELECT COUNT(*) FROM CUSTOMER WHERE C_MKTSEGMENT=?",
   binds: ["AUTOMOBILE"],
 });
 const rows = await resultsPromise;
@@ -138,13 +113,13 @@ statement
 **New API:**
 
 ```typescript
-const { statement, resultsPromise } = promisifiedConnection.execute({
-  sqlText: "SELECT * FROM CUSTOMER WHERE C_MKTSEGMENT=:1",
+const { statement } = connection.execute({
+  sqlText: "SELECT * FROM CUSTOMER WHERE C_MKTSEGMENT=?",
   binds: ["AUTOMOBILE"],
   streamResult: true,
 });
 
-// Stream rows
+// Stream rows (same as legacy)
 statement
   .streamRows({ start: 250, end: 275 })
   .on("error", console.error)
@@ -152,64 +127,44 @@ statement
   .on("end", () => console.log("done processing"));
 ```
 
-### 5. SQL Logging
+### 5. Configuration and Logging
 
 **Legacy API:**
 
 ```typescript
 const snowflake = new Snowflake(
-  {
-    // connection options
-  },
-  {
-    logSql: console.log,
-  },
+  { /* connection options */ },
+  { logSql: console.log },
+  { ocspFailOpen: true }
 );
 ```
 
 **New API:**
 
 ```typescript
+// Configure SDK options before creating connection
 snowflakeSdk.configure({
   logLevel: "INFO",
+  // Note: ocspFailOpen now defaults to true, so no need to set it explicitly
 });
 ```
 
 ## Complete Example
-
-Here’s a complete example showing how to migrate from the legacy API to the new API:
 
 **Legacy API:**
 
 ```typescript
 import { Snowflake } from "snowflake-promise";
 
-async function main() {
-  const snowflake = new Snowflake(
-    {
-      account: "<account name>",
-      username: "<username>",
-      password: "<password>",
-      database: "SNOWFLAKE_SAMPLE_DATA",
-      schema: "TPCH_SF1",
-      warehouse: "DEMO_WH",
-    },
-    {
-      logSql: console.log,
-    },
-  );
+const snowflake = new Snowflake({
+  account: "<account>",
+  username: "<username>",
+  password: "<password>",
+  database: "SNOWFLAKE_SAMPLE_DATA",
+});
 
-  await snowflake.connect();
-
-  const rows = await snowflake.execute(
-    "SELECT COUNT(*) FROM CUSTOMER WHERE C_MKTSEGMENT=:1",
-    ["AUTOMOBILE"],
-  );
-
-  console.log(rows);
-}
-
-main();
+await snowflake.connect();
+const rows = await snowflake.execute("SELECT COUNT(*) FROM CUSTOMER", []);
 ```
 
 **New API:**
@@ -218,50 +173,28 @@ main();
 import snowflakeSdk from "snowflake-sdk";
 import { promisifyConnection } from "snowflake-promise";
 
-async function main() {
-  snowflakeSdk.configure({
-    logLevel: "INFO",
-  });
-
-  // Create the connection
-  const connection = snowflakeSdk.createConnection({
-    account: "<account name>",
+const connection = promisifyConnection(
+  snowflakeSdk.createConnection({
+    account: "<account>",
     username: "<username>",
     password: "<password>",
     database: "SNOWFLAKE_SAMPLE_DATA",
-    schema: "TPCH_SF1",
-    warehouse: "DEMO_WH",
-  });
+  })
+);
 
-  // Promisify the connection
-  const promisifiedConnection = promisifyConnection(connection);
-
-  // Connect
-  await promisifiedConnection.connect();
-
-  // Execute a query
-  const { resultsPromise } = promisifiedConnection.execute({
-    sqlText: "SELECT COUNT(*) FROM CUSTOMER WHERE C_MKTSEGMENT=:1",
-    binds: ["AUTOMOBILE"],
-  });
-
-  // Get the results
-  const rows = await resultsPromise;
-
-  console.log(rows);
-}
-
-main();
+await connection.connect();
+const { resultsPromise } = connection.execute({
+  sqlText: "SELECT COUNT(*) FROM CUSTOMER"
+});
+const rows = await resultsPromise;
 ```
 
-## Additional Notes
+## Key Differences Summary
 
-1. **Error Handling**: Both APIs use standard Promise-based error handling with try/catch or .catch() methods.
+- **Imports**: Use the official SDK directly instead of wrapper classes
+- **Connection**: Use `promisifyConnection()` to wrap SDK connections
+- **Queries**: Use `execute()` with options object instead of positional parameters
+- **Results**: Await `resultsPromise` instead of direct return values
+- **Configuration**: Use `snowflakeSdk.configure()` instead of constructor parameters
 
-2. **Streaming**: The streaming API is similar between both approaches, but the way you obtain the statement object is different.
-
-3. **Compatibility**: The `promisifyConnection` function maintains backward compatibility with callback-based methods, so you can still use callbacks if needed.
-
-4. **Performance**: The new API may offer slightly better performance as it has less overhead than the legacy wrapper classes.
-
-By following this guide, you should be able to migrate your existing code from the legacy API to the newer `promisifyConnection` API with minimal effort.
+The migration is straightforward - most of your existing Promise-based code will work with minimal changes once you update the setup and query patterns.

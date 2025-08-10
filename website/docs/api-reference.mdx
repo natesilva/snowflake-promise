@@ -5,13 +5,28 @@ title: "API Reference"
 
 ## The `promisifyConnection` Function
 
-This library’s main function is `promisifyConnection` which augments a Snowflake `Connection` to allow using Promises. You won’t need any other functions from this library.
+This library exports a single function: `promisifyConnection`. It takes a Snowflake `Connection` object and returns a `PromisifiedConnection` with Promise support added to all callback-based methods.
 
-Once you’ve promisifed a connection, everything else that you do with Snowflake is done using the standard Snowflake SDK methods, except that you are able to use Promises to handle asynchronous operations.
+Once promisified, you use the connection exactly like the standard Snowflake SDK, but with the option to use async/await instead of callbacks.
 
-### What `promisifyConnection` Does
+#### TypeScript signature
 
-`promisifyConnection` takes a Snowflake `Connection` object and returns a new `PromisifiedConnection` object with the same methods, but adding support for Promises.
+```typescript
+import type { Connection } from "snowflake-sdk";
+
+function promisifyConnection(connection: Connection): PromisifiedConnection;
+```
+
+#### Usage
+
+```typescript
+import snowflake from "snowflake-sdk";
+import { promisifyConnection } from "snowflake-promise";
+
+const connection = promisifyConnection(
+  snowflake.createConnection({ /* your config */ })
+);
+```
 
 The following `Connection` methods are augmented with Promise support:
 
@@ -30,6 +45,8 @@ The methods below are enhanced with Promise support while still allowing callbac
 
 :::tip
 The Promise functionality activates automatically when no callback is provided. If a callback is provided, the original, non-promisified, callback-based method is called.
+
+That means that your callback-based code will continue to work, even with a promisified connection.
 :::
 
 ---
@@ -122,34 +139,30 @@ execute<RowType>(
 
 `execute` is the main method for executing SQL statements in the Snowflake SDK.
 
-Use `execute` to run SQL queries. It returns an object containing both a `Statement` and a Promise for the results:
+Use `execute` to run SQL queries. It returns an object with two properties:
 
 ```javascript
 const { statement, resultsPromise } = connection.execute({ sqlText });
-```
-
-You can use the `statement` object to manage or cancel long-running queries.
-
-To get the actual query results, you need to await the `resultsPromise`:
-
-```javascript
 const results = await resultsPromise;
 ```
 
+- `resultsPromise`: Await this to get your query results
+- `statement`: Use this to manage or cancel long-running queries
+
 :::info
 
-**Why doesn’t the `execute` method directly return the results?**
+**Why doesn't `execute` return results directly?**
 
-Instead of returning the results directly, the `execute` method returns both the Statement object and a _Promise_ for the results (instead of the results directly). This gives you more control: you can manage or cancel long-running queries before awaiting the results.
+The `execute` method returns both a statement object and a promise for the results. This gives you immediate access to the statement for operations like cancellation, while still allowing you to await the results when needed.
 
-This approach preserves all the functionality of the underlying Snowflake SDK.
+This design preserves all the functionality of the underlying Snowflake SDK.
 :::
 
 ---
 
-## `RowStatement` Methods That Are Promisified by This Library
+## Statement Methods
 
-`connection.execute` returns a `RowStatement` object (and a `resultsPromise`). The `RowStatement` that is returned is promisified. The only method that is promisified is `cancel`.
+The `statement` object returned by `execute` also has Promise support added to its callback-based methods.
 
 ---
 

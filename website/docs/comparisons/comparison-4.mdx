@@ -1,28 +1,16 @@
 ---
 id: comparison-4-streaming
-title: "Comparison: Streaming Results"
+title: "Streaming Results"
 ---
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
-The Promise Helper Library handles streams without requiring callbacks or event listeners.
+This comparison shows the difference between callback-based and Promise-based result streaming.
 
-**Without** the Promise Helper Library, to stream results:
+**Without** this library: Use callbacks for query execution, leading to nested callback coordination and unpredictable execution order.
 
-- Execute the query with `streamResult` set to `true`.
-- Implement a `complete` callback that receives the statement object.
-- Use `statement.streamRows()` to create a stream.
-- Consume the results.
-  - SDK documentation shows using callbacks on the stream’s `readable`, `error`, and `end` events, but async iteration would be simpler.
-
-Because of the way that callbacks work, code might not execute in the order you expect.
-
-**With** the Promise Helper Library, to stream results:
-
-- Execute the query with `streamResult` set to `true`.
-- Use `statement.streamRows()` to create a stream.
-- Use async iteration to consume the results.
+**With** this library: Use async/await for query execution, enabling clean sequential code flow. This example also demonstrates modern `for await` streaming instead of traditional event handlers.
 
 ## Examples
 
@@ -42,11 +30,16 @@ Based on an example from [the Snowflake SDK documentation](https://docs.snowflak
 
 connection.execute({
   sqlText:
-    "select L_COMMENT from SNOWFLAKE_SAMPLE_DATA.TPCH_SF100.LINEITEM limit 100000;",
+    "SELECT L_COMMENT FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF100.LINEITEM LIMIT 100000",
   streamResult: true,
   complete: function (err, stmt) {
-    var stream = stmt.streamRows();
-    // Read data from the stream when it is available
+    if (err) {
+      console.error("Query failed:", err);
+      return;
+    }
+    
+    const stream = stmt.streamRows();
+    // Complex event-based streaming
     stream
       .on("readable", function (row) {
         while ((row = this.read()) !== null) {
@@ -57,11 +50,12 @@ connection.execute({
         console.log("done");
       })
       .on("error", function (err) {
-        console.log(err);
+        console.error("Stream error:", err);
       });
   },
 });
 
+// This executes immediately, before streaming completes!
 console.log("This will likely execute before completion due to async behavior!");
 ```
 
@@ -69,25 +63,27 @@ console.log("This will likely execute before completion due to async behavior!")
     <TabItem value="example-with" label="WITH Helper Library">
 
 ```typescript
-// Using the Snowflake-Promise Library
+// Using the Promise Helper Library
 
 const { statement } = connection.execute({
   sqlText:
-    "select L_COMMENT from SNOWFLAKE_SAMPLE_DATA.TPCH_SF100.LINEITEM limit 100000;",
+    "SELECT L_COMMENT FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF100.LINEITEM LIMIT 100000",
   streamResult: true,
 });
 
 try {
   const stream = statement.streamRows();
-  // Async iteration
+  // Using modern for await iteration
+  // (available in both approaches, but pairs well with Promises)
   for await (const row of stream) {
     console.log(row);
   }
   console.log("done");
 } catch (error) {
-  console.error(error);
+  console.error("Stream error:", error);
 }
 
+// This executes after streaming completes - predictable order!
 console.log("This will execute after streaming completes.");
 ```
 

@@ -1,63 +1,70 @@
 ---
 id: example-2-connecting-to-snowflake
-title: "Example: Key Pair Authentication"
+title: "Key Pair Authentication"
 ---
+
+Key pair authentication is one of Snowflake's recommended authentication methods. It eliminates passwords entirely and provides better security.
 
 ## Documentation
 
-- Main documentation: [Key-pair authentication and key-pair rotation](https://docs.snowflake.com/en/user-guide/key-pair-auth)
+- [Key-pair authentication and key-pair rotation](https://docs.snowflake.com/en/user-guide/key-pair-auth)
 - [Snowflake SDK documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-authenticate#use-key-pair-authentication-and-key-pair-rotation)
-- 🔧 [Troubleshooting information from Snowflake](https://community.snowflake.com/s/article/Key-Based-Authentication-Failed-with-JWT-token-is-invalid-Error)
+- [Troubleshooting guide](https://community.snowflake.com/s/article/Key-Based-Authentication-Failed-with-JWT-token-is-invalid-Error)
 
 
 ## Prerequisites
 
-- You must have a user configured with key pair authentication, as described in the Snowflake documentation.
-- You must have access to the private key file for the user.
+- A Snowflake user configured with key pair authentication
+- Access to the private key file (store securely using AWS Secrets Manager, Azure Key Vault, etc.)
 
 ## Steps
 
-1. Load the private key file.
-2. Create a connection using the Snowflake SDK `createConnection` method.
-    - Set the `authenticator` property to `SNOWFLAKE_JWT`.
-    - Don’t call `connect` yet.
-3. After creating the connection, pass it to the Promise Helper library’s `promisifyConnection` function.
-4. On the promisified connection object, await the `connect` method to establish a connection to Snowflake.
+1. Load your private key file securely
+2. Create a connection with `authenticator: "SNOWFLAKE_JWT"`
+3. Pass the connection to `promisifyConnection`
+4. Call `connect()` to establish the connection
 
-## Example Code: Key-Pair Authentication
+## Example
 
 ```typescript
-import { strict as assert } from "node:assert";
 import * as crypto from "node:crypto";
 import * as fs from "node:fs/promises";
 import { promisifyConnection } from "snowflake-promise";
 import snowflake from "snowflake-sdk";
 
+// Get the PEM-formatted private key string from secure storage
+// (AWS Secrets Manager, Azure Key Vault, etc.)
+const privateKey = await getFromSecureStorage("snowflake-private-key");
 
-// Read the private key file and extract it as a PEM-encoded string.
-// For this example, we’ll use a file path to the private key file.
-// In production, use a secure storage service such as AWS Secrets
-// Manager or Azure Key Vault.
-const privateKeyFile = await fs.readFile("/path/to/the/file/rsa_key.p8");
-const privateKeyObject = crypto.createPrivateKey({ key: privateKeyFile, format: "pem" });
-const privateKey = privateKeyObject.export({ format: "pem", type: "pkcs8" });
+// Alternative: Read from filesystem (for development/testing only)
+// const privateKeyFile = await fs.readFile("/path/to/your/rsa_key.p8");
+// const privateKeyObject = crypto.createPrivateKey({
+//   key: privateKeyFile,
+//   format: "pem"
+// });
+// const privateKey = privateKeyObject.export({
+//   format: "pem",
+//   type: "pkcs8"
+// });
 
-// Create a Connection using the SDK’s `createConnection` and promisify it
 const connection = promisifyConnection(
   snowflake.createConnection({
-    account: account,
-    username: username,
+    account: "your-account",
+    username: "your-username",
     authenticator: "SNOWFLAKE_JWT",
-    privateKey: privateKey.toString(),
-  }),
+    privateKey: privateKey,
+    // Optional: specify database, schema, warehouse
+  })
 );
 
-// Connect to Snowflake
 try {
   await connection.connect();
-  console.log("Successfully connected to Snowflake.");
-} catch (err) {
-  assert(err instanceof Error);
-  console.error("Unable to connect: " + err.message);
+  console.log("Successfully connected to Snowflake");
+} catch (error) {
+  console.error("Connection failed:", error);
+  return;
 }
+
+// Now you can execute queries
+// const { resultsPromise } = connection.execute({ sqlText: "SELECT 1" });
 ```

@@ -1,16 +1,16 @@
 ---
 id: comparison-2-executing-a-statement
-title: "Comparison: Executing a Statement"
+title: "Executing a Statement"
 ---
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
-This example compares how executing a statement works.
+This comparison shows the difference between callback-based and Promise-based query execution.
 
-**Without** the Promise Helper Library, you need to provide a callback that handles the execution result. Code outside of the callback can’t tell when the execution is complete. Because of the way that callbacks work, code might not execute in the order you expect.
+**Without** this library: Use callbacks to handle execution results, leading to unpredictable code execution order.
 
-**With** the Promise Helper Library, you simply await the execution result.
+**With** this library: Simply await the execution result with predictable, sequential code flow.
 
 ## Examples
 
@@ -27,23 +27,19 @@ Adapted from [an example in the Snowflake SDK documentation](https://docs.snowfl
 ```typescript
 // Not using the Promise Helper Library
 
-var statement = connection.execute({
+const statement = connection.execute({
   sqlText: 'CREATE DATABASE testdb',
   complete: function(err, stmt, rows) {
     if (err) {
-      console.error(
-        'Failed to execute statement due to the following error: ' +
-        err.message
-      );
-    } else {
-      console.log('Successfully executed statement: ' + stmt.getSqlText());
+      console.error('Failed to execute statement:', err.message);
+      return;
     }
+    console.log('Successfully executed statement: ' + stmt.getSqlText());
   }
 });
 
-console.log(
-  'This will likely execute before completion due to async behavior!'
-);
+// This executes immediately, before the query completes!
+console.log('This will likely execute before completion due to async behavior!');
 ```
     </TabItem>
     <TabItem value="example-with" label="WITH Helper Library">
@@ -57,13 +53,12 @@ try {
   });
   await resultsPromise;
   console.log('Successfully executed statement: ' + statement.getSqlText());
-} catch (err) {
-  console.error(
-    'Failed to execute statement due to the following error: ' +
-    err.message
-  );
+} catch (error) {
+  console.error('Failed to execute statement:', error);
+  return;
 }
 
+// This executes after the query completes - predictable order!
 console.log('This will execute after the promise resolves.');
 ```
 

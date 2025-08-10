@@ -1,20 +1,20 @@
 ---
 id: comparison-1-connecting-to-snowflake
-title: "Comparison: Connecting to Snowflake"
+title: "Connecting to Snowflake"
 ---
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
-This example shows how connecting to Snowflake works.
+This comparison shows the difference between callback-based and Promise-based connection handling.
 
 :::info
-Please see the [Authentication and MFA](/docs/authentication-and-mfa) section for information about upcoming changes to the way that Snowflake uses usernames/passwords.
+See [Authentication and MFA](/docs/authentication-and-mfa) for information about upcoming changes to username/password authentication.
 :::
 
-**Without** the Promise Helper Library, you provide a callback that handles the connection result. Code outside of the callback can’t tell when the connection is established, so you should call `connection.isValidAsync()` to check if the connection is ready for queries.
+**Without** this library: Use callbacks to handle connection results, with additional complexity to check if the connection is ready.
 
-**With** the Promise Helper Library, you simply await the connection.
+**With** this library: Simply await the connection - clean and straightforward.
 
 ## Examples
 
@@ -27,34 +27,35 @@ Please see the [Authentication and MFA](/docs/authentication-and-mfa) section fo
 <Tabs>
     <TabItem value="example-without" label="WITHOUT Helper Library">
 
-Example from [Snowflake SDK documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-connect#creating-a-single-connection).
+Based on an example from [Snowflake SDK documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-connect#creating-a-single-connection).
 
 ```typescript
 // Not using the Promise Helper Library
 
-// Create a Connection object that we can use later to connect.
-var connection = snowflake.createConnection({
-  account: account,
-  username: user,
-  password: password,
-  application: application,
+const connection = snowflake.createConnection({
+  account: "your-account",
+  username: "your-username",
+  password: "your-password",
 });
 
-// Try to connect to Snowflake, and check whether the connection was successful.
+// Callback-based connection - harder to coordinate with other async code
 connection.connect(function (err, conn) {
   if (err) {
     console.error("Unable to connect: " + err.message);
-  } else {
-    console.log("Successfully connected to Snowflake.");
-    // Optional: store the connection ID.
-    connection_ID = conn.getId();
+    return;
   }
+  console.log("Successfully connected to Snowflake");
+
+  // Connection logic must be inside callback or you need additional coordination
+  // Optional: store the connection ID
+  const connectionId = conn.getId();
 });
 
-// Verify if connection is still valid for sending queries over it.
+// Outside the callback, you need to check if connection is ready
 const isConnectionValid = await connection.isValidAsync();
-
-// Do further actions based on the value (true or false) of isConnectionValid
+if (isConnectionValid) {
+  // Now you can use the connection...
+}
 ```
 
     </TabItem>
@@ -63,28 +64,29 @@ const isConnectionValid = await connection.isValidAsync();
 ```typescript
 // Using the Promise Helper Library
 
-// Create a Connection object and promisify it
 const connection = promisifyConnection(
   snowflake.createConnection({
-    account: account,
-    username: user,
-    password: password,
-    application: application,
-  }),
+    account: "your-account",
+    username: "your-username",
+    password: "your-password",
+  })
 );
 
-// Connect to Snowflake
+// Clean, Promise-based connection
 try {
   await connection.connect();
-  console.log("Successfully connected to Snowflake.");
-} catch (err) {
-  console.error("Unable to connect: " + err.message);
+  console.log("Successfully connected to Snowflake");
+
+  // Optional: store the connection ID
+  const connectionId = connection.getId();
+
+  // Connection is ready - execute queries immediately
+  // const { resultsPromise } = connection.execute({ sqlText: "SELECT 1" });
+
+} catch (error) {
+  console.error("Unable to connect:", error);
+  return;
 }
-
-// Optional: store the connection ID.
-const connection_ID = connection.getId();
-
-// Now you can use the Connection object to execute queries
 ```
 
     </TabItem>

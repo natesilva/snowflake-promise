@@ -1,48 +1,38 @@
 ---
 id: example-1-connecting-to-snowflake
-title: "Example: Username and Password"
+title: "Username and Password Authentication"
 ---
 
-:::danger
-Deprecated and may stop working: Snowflake recommends using External OAuth or Key Pair Authentication.
+:::danger Deprecated Authentication Method
+Username/password authentication is being deprecated by Snowflake. Use [External OAuth or Key Pair Authentication](/docs/authentication-and-mfa) instead.
 
-- [Planning for the deprecation of single-factor password sign-ins](https://docs.snowflake.com/en/user-guide/security-mfa-rollout)
-
-See our [Authentication and MFA](/docs/authentication-and-mfa) guidance.
+See: [Planning for the deprecation of single-factor password sign-ins](https://docs.snowflake.com/en/user-guide/security-mfa-rollout)
 :::
 
-
-## Steps
-
-
-1. Create a connection using the standard Snowflake SDK `createConnection` method, but don’t call `connect` or `connectAsync` yet.
-2. After creating the connection, pass it to the Promise Helper library’s `promisifyConnection` method.
-3. On the promisified connection object, await the `connect` method.
-
-
-## Example Code: Username and Password
-
-If you have Multi-Factor Authentication (MFA) enabled, this will send a confirmation request to the Duo app on your device, which you must approve to complete the connection.
+This example shows basic username and password authentication. If you have Multi-Factor Authentication (MFA) enabled, you'll need to approve a Duo request on your device during connection.
 
 
 ```typescript
 import { promisifyConnection } from "snowflake-promise";
 import snowflake from "snowflake-sdk";
 
-// Create a Connection using the SDK’s `createConnection` and promisify it
 const connection = promisifyConnection(
   snowflake.createConnection({
-    account: account,
-    username: user,
-    password: password,
-  }),
+    account: "your-account",
+    username: "your-username",
+    password: "your-password",
+    // Optional: specify database, schema, warehouse
+  })
 );
 
-// Connect to Snowflake
 try {
   await connection.connect();
-  console.log("Successfully connected to Snowflake.");
-} catch (err) {
-  console.error("Unable to connect: " + err.message);
+  console.log("Successfully connected to Snowflake");
+} catch (error) {
+  console.error("Connection failed:", error.message);
+  return;
 }
+
+// Now you can execute queries
+// const { resultsPromise } = connection.execute({ sqlText: "SELECT 1" });
 ```

@@ -1,7 +1,9 @@
 ---
 id: query-example-1
-title: "Example: Basic Query"
+title: "Basic Query Execution"
 ---
+
+This example shows how to execute basic SQL queries and retrieve results.
 
 ## Documentation
 
@@ -9,14 +11,9 @@ title: "Example: Basic Query"
 
 ## Prerequisites
 
-- You’ve [established a connection](../../connecting) to Snowflake and promisified it using the `snowflake-promise` library.
+- You've [established a connection](../../connecting) to Snowflake and promisified it
 
-## Steps
-
-1. Execute the query.
-2. Await the results.
-
-## Example Code: Basic Query
+## Basic Query
 
 To make your queries maintainable and to prevent SQL injection attacks, don’t concatenate data into SQL strings. Instead, use `binds`.
 
@@ -25,42 +22,41 @@ const { resultsPromise } = connection.execute({
   sqlText: `
     SELECT COUNT(*) AS QTY
     FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER
-    WHERE C_MKTSEGMENT = :1;
+    WHERE C_MKTSEGMENT = ?
   `,
   binds: ['AUTOMOBILE']
 });
+
 const results = await resultsPromise;
-console.log(results); // prints: [ { QTY: 29752 } ]
+console.log(results); // [ { QTY: 29752 } ]
 ```
 
-## Example Code: Basic Query with TypeScript Interface
+## TypeScript with Typed Results
 
-In this query we’re passing the expected row type as an `interface` and getting back strongly-typed results.
+You can specify the expected row type to get strongly-typed results:
 
 ```typescript
-// The expected row type for the query results
 interface CustomerCount {
   C_MKTSEGMENT: string;
   QTY: number;
 }
 
-// Pass <CustomerCount> to the execute method
 const { resultsPromise } = connection.execute<CustomerCount>({
   sqlText: `
     SELECT C_MKTSEGMENT, COUNT(*) AS QTY
     FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER
-    GROUP BY C_MKTSEGMENT;
+    GROUP BY C_MKTSEGMENT
   `
 });
 
 const results = await resultsPromise;
-
 if (!results) {
   console.error("No results found");
-} else {
-  for (const result of results) {
-    // We can reference the results in a type-safe manner.
-    console.log(`Market Segment: ${result.C_MKTSEGMENT}, Quantity: ${result.QTY}`);
-  }
+  return;
+}
+
+// TypeScript knows the structure of each result
+for (const result of results) {
+  console.log(`Market: ${result.C_MKTSEGMENT}, Count: ${result.QTY}`);
 }
 ```

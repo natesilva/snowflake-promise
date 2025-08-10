@@ -4,20 +4,16 @@ title: Authentication and MFA
 ---
 
 :::info
-Authentication is configured using the standard Snowflake SDK, not the Snowflake Promise Helper library.
+Authentication is handled by the Snowflake SDK, not this library. However, users frequently ask about Snowflake's upcoming MFA requirements and how they'll be affected.
 
-The Promise Helper Library is not directly involved in the authentication process.
-
-Users of this library have expressed concern about upcoming MFA requirements and how they might be affected. This document summarizes your options.
+This document explains your authentication options.
 :::
 
 Snowflake will require Multi-Factor Authentication (MFA) for _human users_ by November 2025, and deprecate the use of passwords for _service users_ in several phases.
 
 Libraries like this one are often used in backend services, which would be considered _service users_.
 
-The Snowflake web site has guidance:
-
-- [Planning for the deprecation of single-factor password sign-ins](https://docs.snowflake.com/en/user-guide/security-mfa-rollout)
+For complete details, see Snowflake's official guidance: [Planning for the deprecation of single-factor password sign-ins](https://docs.snowflake.com/en/user-guide/security-mfa-rollout)
 
 ## Available options
 
@@ -32,11 +28,11 @@ Here are the available authentication options from the [SDK documentation](https
 | **Native SSO through Okta** | ? | ? | Not tested by us |
 | **Key pair authentication**<br /><small>❄️ _Snowflake recommended_</small> | No | Yes |  |
 
-## Does it Work with the SDK and this Library?
+## Compatibility
 
-All of the listed methods work with the SDK and this library. Authentication is configured using options passed to the `snowflake.createConnection` method.
+All authentication methods listed above work with this library. Authentication is configured through options passed to `snowflake.createConnection`.
 
-For authentication methods that require user interaction, the `connect` or `connectAsync` method will pause while the user completes the interaction, which can be a browser-based interaction or a Duo authentication prompt. Obviously these methods are not suitable for use in back-end services.
+Methods requiring user interaction (browser SSO, Duo prompts) will pause execution during authentication, making them unsuitable for backend services.
 
 ## Snowflake Recommendation
 
@@ -44,9 +40,9 @@ For authentication methods that require user interaction, the `connect` or `conn
 
 > For service users: We recommend using external OAuth when possible, and if not, using key pair authentication to eliminate passwords altogether for such users. We strongly advise enabling network policies when using key pair authentication and, in general, to enable network policies for all user types, not just service users.
 
-## Guidance
+## Recommendations
 
-Use **External OAuth** or **Key Pair Authentication**.
+For service users, use **External OAuth** or **Key Pair Authentication**.
 
 ### External OAuth
 
@@ -55,9 +51,9 @@ Following Snowflake’s guidance, **External OAuth** is a recommended authentica
 - [Snowflake External OAuth overview](https://docs.snowflake.com/en/user-guide/oauth-ext-overview)
 - [External OAuth in the Node.js Snowflake SDK](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-authenticate#label-nodejs-oauth)
 
-OAuth authentication requires significant, complex, initial configuration that is best done by your company’s IT department. In most cases, it is not possible for developers to implement OAuth authentication on their own.
+OAuth requires complex initial configuration typically handled by your IT department. Most developers cannot implement OAuth authentication independently.
 
-In many companies, an external identity provider (IdP) is already used to manage user authentication. This IdP can be leveraged to support Snowflake using External OAuth.
+If your company already uses an external identity provider (IdP), it can likely be configured to work with Snowflake's External OAuth.
 
 ### Key Pair Authentication
 
@@ -66,9 +62,9 @@ The other recommended authentication method is **key pair authentication**. Docu
 - [Key-pair authentication and key-pair rotation](https://docs.snowflake.com/en/user-guide/key-pair-auth)
 - [Key pair authentication in the Node.js Snowflake SDK](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-authenticate#label-nodejs-key-pair-authentication)
 
-This requires a somewhat complex initial setup where keys need to be generated and a public key added to the Snowflake user. Developers may be able to complete this setup on their own.
+This method requires generating key pairs and adding the public key to your Snowflake user. Developers can often complete this setup independently.
 
-The private key must be stored securely. Consider using a solution such as AWS Secrets Manager or Azure Key Vault.
+**Important**: Store private keys securely using services like AWS Secrets Manager or Azure Key Vault.
 
 Snowflake provides the ability to rotate keys without downtime, which is a valuable feature. See the [Configuring Key Pair Rotation](https://docs.snowflake.com/en/user-guide/key-pair-auth#configuring-key-pair-rotation) section in the documentation.
 
