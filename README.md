@@ -30,7 +30,7 @@ import snowflakeSdk from "snowflake-sdk";
 import { promisifyConnection } from "snowflake-promise";
 
 async function main() {
-  // Create the connection
+  // Create a connection
   const connection = snowflakeSdk.createConnection({
     account: "<account name>",
     username: "<username>",
@@ -54,7 +54,6 @@ async function main() {
 
   // Get the results
   const rows = await resultsPromise;
-
   console.log(rows);
 }
 
