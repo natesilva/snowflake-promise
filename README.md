@@ -4,9 +4,9 @@ A modern, Promise-based interface for the [Snowflake](https://www.snowflake.net/
 
 ---
 
-## Version 5
+## Promise Support for the Snowflake SDK
 
-Version 5 is a complete rewrite with improved TypeScript support while maintaining full backwards compatibility with previous versions of `snowflake-promise` and the underlying `snowflake-sdk`’s callback API.
+With `snowflake-promise`, you can easily use the Snowflake Node.js SDK with Promises and async/await, instead of callbacks.
 
 📚 [Full Documentation](https://natesilva.github.io/snowflake-promise/docs/)
 
@@ -25,6 +25,10 @@ Version 5 is a complete rewrite with improved TypeScript support while maintaini
 
 ## Basic Usage
 
+`snowflake-promise` provides a lightweight wrapper around the Snowflake Node.js SDK. It augments the official SDK with a Promise-based interface, allowing you to work with Snowflake in a more modern way.
+
+Here's a simple example of how to use `snowflake-promise` to connect to Snowflake, execute a query, and handle the results:
+
 ```typescript
 import snowflakeSdk from "snowflake-sdk";
 import { promisifyConnection } from "snowflake-promise";
@@ -40,19 +44,19 @@ async function main() {
     warehouse: "DEMO_WH",
   });
 
-  // Promisify the connection
+  // ✨ Promisify the connection
   const promisifiedConnection = promisifyConnection(connection);
 
-  // Connect
+  // Connect (no callbacks -- you can use async/await)
   await promisifiedConnection.connect();
 
   // Execute a query
-  const { resultsPromise } = await promisifiedConnection.execute({
+  const { resultsPromise } = promisifiedConnection.execute({
     sqlText: "SELECT COUNT(*) FROM CUSTOMER WHERE C_MKTSEGMENT=:1",
     binds: ["AUTOMOBILE"],
   });
 
-  // Get the results
+  // Get the results (no callbacks -- you can use async/await)
   const rows = await resultsPromise;
   console.log(rows);
 }
@@ -62,7 +66,7 @@ main();
 
 See the [Full Documentation](https://natesilva.github.io/snowflake-promise/docs/) for more details on:
 
-- Authentication options (MFA, Key Pair, OAuth, etc.)
-- Executing queries and handling results
-- Streaming rows
-- Backward compatibility and migration from previous versions
+- [Authentication options (MFA, Key Pair, OAuth, etc.)](https://natesilva.github.io/snowflake-promise/docs/authentication-and-mfa/)
+- [Executing queries and handling results](https://natesilva.github.io/snowflake-promise/docs/examples/executing-queries/query-example-1/)
+- [Streaming rows](https://natesilva.github.io/snowflake-promise/docs/examples/executing-queries/query-example-2/)
+- [Backward compatibility and migration from previous versions](https://natesilva.github.io/snowflake-promise/docs/migration-guide/)
