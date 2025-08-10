@@ -46,10 +46,12 @@ import { promisifyConnection } from "snowflake-promise";
 
 // Wrap any Snowflake connection to add Promise support
 const connection = promisifyConnection(
-  snowflake.createConnection({ /* your config */ })
+  snowflake.createConnection({
+    /* your config */
+  }),
 );
 
-// Now use async/await instead of callbacks!
+// Now you can use async/await instead of callbacks
 await connection.connect();
 const { resultsPromise } = connection.execute({ sqlText: "SELECT * FROM users" });
 const results = await resultsPromise;
