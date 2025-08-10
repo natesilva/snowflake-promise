@@ -40,15 +40,12 @@ const connection = snowflake.createConnection({
 
 // Callback-based connection - harder to coordinate with other async code
 connection.connect(function (err, conn) {
+  // Connection logic must be inside callback or you need additional coordination
   if (err) {
     console.error("Unable to connect: " + err.message);
     return;
   }
   console.log("Successfully connected to Snowflake");
-
-  // Connection logic must be inside callback or you need additional coordination
-  // Optional: store the connection ID
-  const connectionId = conn.getId();
 });
 
 // Outside the callback, you need to check if connection is ready
@@ -76,17 +73,13 @@ const connection = promisifyConnection(
 try {
   await connection.connect();
   console.log("Successfully connected to Snowflake");
-
-  // Optional: store the connection ID
-  const connectionId = connection.getId();
-
-  // Connection is ready - execute queries immediately
-  // const { resultsPromise } = connection.execute({ sqlText: "SELECT 1" });
-
 } catch (error) {
   console.error("Unable to connect:", error);
   return;
 }
+
+// Connection is ready - execute queries immediately
+// const { resultsPromise } = connection.execute({ sqlText: "SELECT 1" });
 ```
 
     </TabItem>

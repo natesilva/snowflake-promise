@@ -9,6 +9,8 @@ title: "Streaming Query Results"
 
 Streaming allows you to process large datasets without loading all results into memory at once, preventing out-of-memory errors and improving efficiency.
 
+**Key requirement**: You must set `streamResult: true` in the execute options to enable streaming.
+
 ## Modern Streaming with `for await`
 
 Traditional streaming uses event handlers like `on("data")` and `on("end")`. This example demonstrates the much simpler `for await` pattern, which makes streaming as easy as iterating over an array.
@@ -28,7 +30,7 @@ interface Customer {
   C_ACCTBAL: number;
 }
 
-// Execute query with streamResult: true
+// Execute query with streamResult: true (this enables streaming)
 const { statement } = connection.execute<Customer>({
   sqlText: `
     SELECT C_CUSTKEY, C_NAME, C_PHONE, C_ACCTBAL

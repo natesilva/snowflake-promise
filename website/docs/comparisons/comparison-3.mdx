@@ -80,6 +80,8 @@ await new Promise((resolve, reject) => {
 ```typescript
 // Using the Promise Helper Library
 
+// With this library, you get async behavior by default
+// No need for asyncExec: true unless you need immediate query ID access
 const { resultsPromise } = connection.execute({
   sqlText: "CALL SYSTEM$WAIT(3, 'SECONDS')",
 });

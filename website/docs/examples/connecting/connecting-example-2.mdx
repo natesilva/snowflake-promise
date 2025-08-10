@@ -19,10 +19,12 @@ Key pair authentication is one of Snowflake's recommended authentication methods
 
 ## Steps
 
-1. Load your private key file securely
-2. Create a connection with `authenticator: "SNOWFLAKE_JWT"`
-3. Pass the connection to `promisifyConnection`
-4. Call `connect()` to establish the connection
+1. Load your private key securely.
+2. Create a connection with:
+    - `authenticator: "SNOWFLAKE_JWT"`
+    - `privateKey: <your-private-key>`
+3. Pass the connection to `promisifyConnection`.
+4. Call `connect()` to establish the connection.
 
 ## Example
 
@@ -33,6 +35,7 @@ import { promisifyConnection } from "snowflake-promise";
 import snowflake from "snowflake-sdk";
 
 // Get the PEM-formatted private key string from secure storage
+// Replace `getFromSecureStorage` with your actual secure storage function
 // (AWS Secrets Manager, Azure Key Vault, etc.)
 const privateKey = await getFromSecureStorage("snowflake-private-key");
 
