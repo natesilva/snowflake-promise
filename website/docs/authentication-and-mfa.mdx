@@ -1,0 +1,71 @@
+---
+sidebar_position: 6
+title: Authentication and MFA
+---
+
+:::info
+Authentication is handled by the Snowflake SDK, not this library. However, users frequently ask about Snowflake’s upcoming MFA requirements and how they’ll be affected.
+
+This document explains your authentication options.
+:::
+
+Snowflake will require Multi-Factor Authentication (MFA) for _human users_ by November 2025, and deprecate the use of passwords for _service users_ in several phases.
+
+Libraries like this one are often used in backend services, which would be considered _service users_.
+
+For complete details, see Snowflake’s official guidance: [Planning for the deprecation of single-factor password sign-ins](https://docs.snowflake.com/en/user-guide/security-mfa-rollout).
+
+## Available options
+
+Here are the available authentication options from the [SDK documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-authenticate):
+
+| Authentication Method | Supports Human Users? | Supports Service Users? | Notes |
+| :----------- | :-----------: | :-----------: | :----------- |
+| **Password-based authentication** | Yes | No | Once MFA is enabled, requires Duo approval on user device |
+| **Single sign-on (SSO) through a web browser** | Yes | No | User completes login using a web browser |
+| **OAuth (Snowflake Built-in)** | Yes | No | Requires browser interaction |
+| **OAuth (External)**<br /><small>❄️ _Snowflake recommended_</small> | Yes | Depends on provider | |
+| **Native SSO through Okta** | ? | ? | Not tested by us |
+| **Key pair authentication**<br /><small>❄️ _Snowflake recommended_</small> | No | Yes |  |
+
+## Compatibility
+
+All authentication methods listed above work with this library. Authentication is configured through options passed to `snowflake.createConnection`.
+
+Methods requiring user interaction (browser SSO, Duo prompts) will pause execution during authentication, making them unsuitable for backend services.
+
+## Snowflake Recommendation
+
+[Snowflake says](https://www.snowflake.com/en/blog/multi-factor-identification-default/):
+
+> For service users: We recommend using external OAuth when possible, and if not, using key pair authentication to eliminate passwords altogether for such users. We strongly advise enabling network policies when using key pair authentication and, in general, to enable network policies for all user types, not just service users.
+
+## Recommendations
+
+For service users, use **External OAuth** or **Key Pair Authentication**.
+
+### External OAuth
+
+Following Snowflake’s guidance, **External OAuth** is a recommended authentication method for service users. Documentation for Snowflake’s External OAuth implementation can be found here:
+
+- [Snowflake External OAuth overview](https://docs.snowflake.com/en/user-guide/oauth-ext-overview)
+- [External OAuth in the Node.js Snowflake SDK](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-authenticate#label-nodejs-oauth)
+
+OAuth requires complex initial configuration typically handled by your IT department. Most developers cannot implement OAuth authentication independently.
+
+If your company already uses an external identity provider (IdP), it can likely be configured to work with Snowflake’s External OAuth.
+
+### Key Pair Authentication
+
+The other recommended authentication method is **key pair authentication**. Documentation can be found here:
+
+- [Key-pair authentication and key-pair rotation](https://docs.snowflake.com/en/user-guide/key-pair-auth)
+- [Key pair authentication in the Node.js Snowflake SDK](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-authenticate#label-nodejs-key-pair-authentication)
+
+This method requires generating key pairs and adding the public key to your Snowflake user. Developers can often complete this setup independently.
+
+**Important**: Store private keys securely using services like AWS Secrets Manager or Azure Key Vault.
+
+Snowflake provides the ability to rotate keys without downtime, which is a valuable feature. See the [Configuring Key Pair Rotation](https://docs.snowflake.com/en/user-guide/key-pair-auth#configuring-key-pair-rotation) section in the documentation.
+
+For an example implementation, see our [Key Pair Authentication example code](../examples/connecting/example-2-connecting-to-snowflake).

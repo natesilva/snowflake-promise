@@ -1,0 +1,177 @@
+---
+id: comparison-3-async-queries
+title: "Executing a Query (Async)"
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+The Snowflake SDK supports asynchronous query execution. This comparison shows how much simpler this becomes with Promise-based code.
+
+Two examples demonstrate different async patterns, both based on Snowflake SDK documentation.
+
+### First Example: Basic Async Execution
+
+**Without** this library: Complex manual Promise wrapping, callback coordination, query ID management, and manual result streaming.
+
+**With** this library: Execute the query and await the results.
+
+### Second Example: Async with Status Polling
+
+**Without** this library: Manual Promise wrapping, callback coordination, and complex polling setup.
+
+**With** this library: Execute with async option, await statement readiness, then implement clean polling.
+
+## Examples
+
+### Example 1
+
+:::tip
+
+- Click "WITHOUT Helper Library" to see the original code
+- Click "WITH Helper Library" to see the improved code using this library
+  :::
+
+<Tabs>
+    <TabItem value="example-without" label="WITHOUT Helper Library">
+
+Based on an example [from the Snowflake documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute#execute-queries-asynchronously).
+
+```typescript
+// Not using the Promise Helper Library
+
+let queryId;
+
+// 1. Manually wrap execution to capture query ID
+await new Promise((resolve) => {
+  connection.execute({
+    sqlText: "CALL SYSTEM$WAIT(3, 'SECONDS')",
+    asyncExec: true,
+    complete: function (err, stmt, rows) {
+      if (err) {
+        console.error("Query failed:", err);
+        return;
+      }
+      queryId = stmt.getQueryId();
+      resolve();
+    },
+  });
+});
+
+// 2. Manually get results and set up streaming
+const statement = await connection.getResultsFromQueryId({ queryId: queryId });
+await new Promise((resolve, reject) => {
+  const stream = statement.streamRows();
+  stream.on("error", function (err) {
+    reject(err);
+  });
+  stream.on("data", function (row) {
+    console.log(row);
+  });
+  stream.on("end", function () {
+    resolve();
+  });
+});
+```
+
+    </TabItem>
+    <TabItem value="example-with" label="WITH Helper Library">
+
+```typescript
+// Using the Promise Helper Library
+
+// With this library, you get async behavior by default
+// No need for asyncExec: true unless you need immediate query ID access
+const { resultsPromise } = connection.execute({
+  sqlText: "CALL SYSTEM$WAIT(3, 'SECONDS')",
+});
+
+const results = await resultsPromise;
+console.log(results);
+```
+
+    </TabItem>
+
+</Tabs>
+
+### Example 2
+
+:::tip
+
+- Click "WITHOUT Helper Library" to see the original code
+- Click "WITH Helper Library" to see the improved code using this library
+  :::
+
+<Tabs>
+    <TabItem value="example-without" label="WITHOUT Helper Library">
+
+Based on an example [from the Snowflake documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute#execute-queries-asynchronously).
+
+```typescript
+// Not using the Promise Helper Library
+
+let queryId;
+
+// 1. Manually wrap execution to capture query ID
+await new Promise((resolve, reject) => {
+  const statement = connection.execute({
+    sqlText: "CALL SYSTEM$WAIT(3, 'SECONDS')",
+    asyncExec: true,
+    complete: function (err, stmt, rows) {
+      if (err) {
+        reject(err);
+        return;
+      }
+      queryId = stmt.getQueryId();
+      resolve();
+    },
+  });
+});
+
+// 2. Manual polling with setTimeout Promise wrapper
+const seconds = 2;
+let status = await connection.getQueryStatus(queryId);
+while (connection.isStillRunning(status)) {
+  console.log(`Query status is ${status}, waiting ${seconds} seconds`);
+
+  await new Promise((resolve) => {
+    setTimeout(() => resolve(), 1000 * seconds);
+  });
+
+  status = await connection.getQueryStatus(queryId);
+}
+
+console.log(`Query has finished executing, status is ${status}`);
+```
+
+    </TabItem>
+    <TabItem value="example-with" label="WITH Helper Library">
+
+```typescript
+// Using the Promise Helper Library
+
+import { scheduler } from "node:timers/promises";
+
+const { statement, resultsPromise } = connection.execute({
+  sqlText: "CALL SYSTEM$WAIT(3, 'SECONDS')",
+  asyncExec: true,
+});
+
+// With asyncExec, await to ensure the statement is ready
+await resultsPromise;
+const queryId = statement.getQueryId();
+
+// Clean polling with modern timer API
+let status = await connection.getQueryStatus(queryId);
+while (connection.isStillRunning(status)) {
+  console.log(`Query status is ${status}, waiting 2 seconds`);
+  await scheduler.wait(2000);
+  status = await connection.getQueryStatus(queryId);
+}
+
+console.log(`Query has finished executing, status is ${status}`);
+```
+
+    </TabItem>
+
+</Tabs>

@@ -57,6 +57,14 @@ typings/
 # dotenv environment variables file
 .env
 
+# OS-generated files to ignore
+.DS_Store
+Thumbs.db
+
 # Project-specific ignores
-build
+dist
 src/test.ts
+/old-version
+website/.docusaurus
+website/dist
+website/build

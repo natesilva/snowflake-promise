@@ -1,9 +1,7 @@
-export { Snowflake } from './Snowflake';
-export { Statement } from './Statement';
+// Our main entry point
+/* v8 ignore next */
+export { promisifyConnection } from "./lib/promisify-connection.js";
 
-export { ConnectionOptions } from './types/ConnectionOptions';
-export { ExecuteOptions } from './types/ExecuteOptions';
-export { SnowflakeError } from './types/SnowflakeError';
-export { StatementAlreadyExecutedError } from './types/StatementAlreadyExecutedError';
-export { StatementNotExecutedError } from './types/StatementNotExecutedError';
-export { StreamRowsOptions } from './types/StreamRowsOptions';
+// Legacy entry points
+/* v8 ignore next */
+export * from "./legacy-compatibility/index.js";

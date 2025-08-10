@@ -1,0 +1,62 @@
+---
+id: query-example-1
+title: "Basic Query Execution"
+---
+
+This example shows how to execute basic SQL queries and retrieve results.
+
+## Documentation
+
+- [Snowflake SDK Documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute)
+
+## Prerequisites
+
+- You've [established a connection](../../connecting) to Snowflake and promisified it.
+
+## Basic Query
+
+To make your queries maintainable and to prevent SQL injection attacks, don’t concatenate data into SQL strings. Instead, use `binds`.
+
+```typescript
+const { resultsPromise } = connection.execute({
+  sqlText: `
+    SELECT COUNT(*) AS QTY
+    FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER
+    WHERE C_MKTSEGMENT = ?
+  `,
+  binds: ['AUTOMOBILE']
+});
+
+const results = await resultsPromise;
+console.log(results); // [ { QTY: 29752 } ]
+```
+
+## TypeScript with Typed Results
+
+You can specify the expected row type to get strongly-typed results:
+
+```typescript
+interface CustomerCount {
+  C_MKTSEGMENT: string;
+  QTY: number;
+}
+
+const { resultsPromise } = connection.execute<CustomerCount>({
+  sqlText: `
+    SELECT C_MKTSEGMENT, COUNT(*) AS QTY
+    FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER
+    GROUP BY C_MKTSEGMENT
+  `
+});
+
+const results = await resultsPromise;
+if (!results) {
+  console.error("No results found");
+  return;
+}
+
+// TypeScript knows the structure of each result
+for (const result of results) {
+  console.log(`Market: ${result.C_MKTSEGMENT}, Count: ${result.QTY}`);
+}
+```

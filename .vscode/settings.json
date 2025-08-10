@@ -5,14 +5,13 @@
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
   "files.exclude": {
-    "**/build": true,
+    "**/dist": false,
     "**/node_modules": true,
     "**/coverage": true,
     "**/.nyc_output": true,
     "**/cache": true,
     "sessions.db": true
   },
-  "tslint.autoFixOnSave": true,
   "typescript.tsdk": "./node_modules/typescript/lib",
   "search.useIgnoreFilesByDefault": true,
   "files.defaultLanguage": "typescript",

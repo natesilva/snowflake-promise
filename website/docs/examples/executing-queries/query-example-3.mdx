@@ -1,0 +1,38 @@
+---
+id: query-example-3
+title: "Canceling an In-Progress Query"
+---
+
+## Documentation
+
+- [Snowflake SDK Documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute#canceling-statements)
+
+You can cancel long-running queries using the `cancel()` method on the statement object.
+
+## Prerequisites
+
+- You've [established a connection](../../connecting) to Snowflake and promisified it.
+
+## Example
+
+```typescript
+import { scheduler } from 'node:timers/promises';
+
+// Start a long-running query (simulates 10-second wait)
+console.log('Starting query...', new Date());
+const { statement } = connection.execute({
+  sqlText: `CALL SYSTEM$WAIT(10, 'SECONDS')`
+});
+
+// Wait 2 seconds, then cancel
+console.log('Waiting 2 seconds...', new Date());
+await scheduler.wait(2000);
+
+console.log("Canceling query...", new Date());
+await statement.cancel();
+console.log("Query canceled successfully");
+
+// Note: If you were awaiting the original query's results,
+// it would throw an error when canceled:
+// Error [OperationFailedError]: SQL execution canceled
+```

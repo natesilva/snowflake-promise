@@ -1,0 +1,187 @@
+---
+sidebar_position: 3
+title: "API Reference"
+---
+
+## The `promisifyConnection` Function
+
+This library exports a single function: `promisifyConnection`. It takes a Snowflake `Connection` object and returns a `PromisifiedConnection` with Promise support added to all callback-based methods.
+
+Once promisified, you use the connection exactly like the standard Snowflake SDK, but with the option to use async/await instead of callbacks.
+
+#### TypeScript signature
+
+```typescript
+import type { Connection } from "snowflake-sdk";
+
+function promisifyConnection(connection: Connection): PromisifiedConnection;
+```
+
+#### Usage
+
+```typescript
+import snowflake from "snowflake-sdk";
+import { promisifyConnection } from "snowflake-promise";
+
+const connection = promisifyConnection(
+  snowflake.createConnection({ /* your config */ })
+);
+```
+
+The following `Connection` methods are augmented with Promise support:
+
+- [`connect`](#connect)
+- [`connectAsync`](#connectasync)
+- [`destroy`](#destroy)
+- [`execute`](#execute)
+
+Any `RowStatement` objects returned from promisified methods will have Promise support added to the following method:
+
+- [`cancel`](#cancel)
+
+## `Connection` Methods That Are Promisified by This Library
+
+The methods below are enhanced with Promise support while still allowing callback usage.
+
+:::tip
+The Promise functionality activates automatically when no callback is provided. If a callback is provided, the original, non-promisified, callback-based method is called.
+
+That means that your callback-based code will continue to work, even with a promisified connection.
+:::
+
+---
+
+### `connect`
+
+- Link: [Snowflake SDK Documentation for Connections](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-connect#creating-a-single-connection)
+
+#### TypeScript signature
+
+```typescript
+// original SDK signature
+connect(callback: ConnectionCallback): void;
+
+// promisified signature
+connect(): Promise<Connection>;
+```
+
+#### Usage
+
+After creating a `Connection`, use its `connect` method to connect to Snowflake.
+
+When using the traditional SDK `connect` method, you pass a callback for connection readiness, and you can call `connection.isValidAsync()` to check for connection status.
+
+When using Promises, you won’t need to call `connection.isValidAsync()` to check this, because once the `Promise` resolves, the connection is ready.
+
+---
+
+### `connectAsync`
+
+- Link: [Snowflake SDK Documentation for Connections](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-connect#creating-a-single-connection)
+
+#### TypeScript signature
+
+```typescript
+// original SDK signature
+connectAsync(callback: ConnectionCallback): Promise<void>;
+
+// promisified signature
+connectAsync(): Promise<Connection>;
+```
+
+#### Usage
+
+For authentication types like browser-based SSO (`EXTERNALBROWSER`), you need to use `connectAsync` instead of `connect`.
+
+It works the same way as the standard `connect` method.
+
+---
+
+### `destroy`
+
+- Link: [Snowflake SDK documentation for terminating a connection](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-connect#terminating-a-connection)
+
+#### TypeScript signature
+
+```typescript
+// original SDK signature
+destroy(fn: ConnectionCallback): void;
+
+// promisified signature
+destroy(): Promise<void>;
+```
+
+#### Usage
+
+Use the `destroy` method to end a session and destroy a connection, without waiting for any pending operations to complete.
+
+---
+
+### `execute`
+
+- Link: [Snowflake SDK Documentation for Executing SQL Statements](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute)
+
+#### TypeScript signature
+
+```typescript
+// original SDK signature
+execute(options: StatementOption): RowStatement | FileAndStageBindStatement;
+
+// promisified signature
+execute<RowType>(
+  options: StatementOptionWithoutCallback,
+): { statement: RowStatement; resultsPromise: Promise<RowType[]> };
+
+// Note: FileAndStageBindStatement is a subclass of RowStatement.
+```
+
+#### Usage
+
+`execute` is the main method for executing SQL statements in the Snowflake SDK.
+
+Use `execute` to run SQL queries. It returns an object with two properties:
+
+```javascript
+const { resultsPromise, statement } = connection.execute({ sqlText });
+const results = await resultsPromise;
+```
+
+- `resultsPromise`: Await this to get your query results.
+- `statement`: Use this to manage or cancel long-running queries. You can omit or ignore this if you don’t need it. See the [canceling queries example](../examples/executing-queries/query-example-3).
+
+:::info
+
+**Why doesn't `execute` return results directly?**
+
+The `execute` method returns both a statement object and a promise for the results. This gives you immediate access to the statement for operations like cancellation, while still allowing you to await the results when needed.
+
+This design preserves all the functionality of the underlying Snowflake SDK.
+:::
+
+---
+
+## Statement Methods
+
+The `statement` object returned by `execute` also has Promise support added to its callback-based methods.
+
+---
+
+### `cancel`
+
+- Link: [Snowflake SDK documentation for canceling a statement](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute#canceling-statements)
+
+#### TypeScript signature
+
+```typescript
+// original SDK signature
+cancel(callback?: StatementCallback): void;
+
+// promisified signature
+cancel(): Promise<void>;
+```
+
+#### Usage
+
+Use the `cancel` method to cancel a running statement.
+
+---

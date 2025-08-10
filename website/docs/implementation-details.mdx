@@ -1,0 +1,105 @@
+---
+sidebar_position: 7
+title: Implementation Details
+---
+
+import Mermaid from '@theme/Mermaid';
+
+This page explains how the library works internally and key design decisions.
+
+## Design Goals
+
+This library aims to:
+
+- Help developers use Snowflake more intuitively through Promises.
+- Stay maintainable with a lightweight approach to enhancing the Snowflake API.
+
+## How Proxying Works
+
+To add Promise support to the Snowflake SDK `Connection`, we use a [JavaScript Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) to intercept and modify method calls. This is a modern alternative to the traditional Proxy pattern, which requires creating a full wrapper class.
+
+### Traditional Proxy Pattern vs. JavaScript Proxy
+
+**Traditional Proxy Pattern**: Requires implementing a complete wrapper class that mirrors the entire target interface. Every method must be explicitly implemented, creating significant maintenance overhead as the interface evolves. This is how the previous version of this library was implemented.
+
+**JavaScript Proxy**: Uses a “trap” system where you only define handlers for specific operations you want to intercept. All other operations automatically pass through without additional code.
+
+Key advantages:
+
+- **Selective enhancement**: We only trap specific methods (`connect`, `execute`), not the entire interface.
+- **Automatic pass-through**: Untrapped methods and properties work exactly like the original object.
+- **Future-proof**: New SDK methods work immediately without code changes.
+- **Full compatibility**: Maintains the same prototype, so it works anywhere the original would.
+
+## Dual Promise/Callback Support
+
+`PromisifiedConnection` objects work with both Promises and callbacks.
+
+### Why Not `util.promisify`?
+
+Node.js’s `util.promisify` appears to support both callbacks and Promises, but this is an accidental side effect with several problems:
+
+- **Always returns a Promise**: Even when a callback is provided, `util.promisify` returns a Promise.
+- **Always appends a callback**: It adds its own callback to the argument list regardless of user input.
+- **Callback duplication**: If a user passes a callback, the argument list ends up with two callbacks - the user’s callback followed by `util.promisify`’s callback. The user’s callback will be called, but the `util.promisify` callback, which finalizes the Promise, is never called, leaving an unresolved Promise.
+
+### Our Promise Wrapper
+
+We designed our wrapper to handle both Promises and callbacks correctly. It checks if a callback is provided:
+
+- **With callback**: Runs the original SDK method unchanged, returns the original result.
+- **Without callback**: Returns a Promise that resolves with the result.
+
+This provides true dual-mode operation with complete backward compatibility.
+
+## Why `execute` Returns an Object
+
+The `execute` method needs to return two things at different times:
+
+- **Immediately**: The Statement object for query management.
+- **Later**: The actual query results when execution completes.
+
+The Snowflake SDK handles this with callbacks: it returns the statement immediately and later passes results to the callback. Traditional Promise APIs only return a single async value, making this pattern difficult to replicate.
+
+### The Solution
+
+Our solution is to return an object with both values:
+
+```typescript
+type StatementOptionMethodResult<RowType> = {
+  statement: PromisifiedRowStatement;
+  resultsPromise: Promise<Array<RowType> | undefined>;
+};
+```
+
+This pattern provides:
+- **Immediate access** to the Statement object for query management.
+- **Promise-based access** to results that can be awaited.
+
+This maintains the full functionality of the Snowflake SDK while enabling modern async/await patterns.
+
+## SDK Compatibility Improvements
+
+Key improvements over the original library:
+
+**Peer Dependency**: The Snowflake SDK is now a `peerDependency`, preventing version conflicts and enabling newer SDK versions.
+
+**Direct SDK Usage**: Authentication and core functionality are handled directly by the SDK, not passed through this library. This reduces compatibility concerns as requirements evolve.
+
+## Legacy API Compatibility
+
+**Previous approach**: Used `Snowflake`, `Connection`, and `Statement` proxy objects that fell behind SDK updates.
+
+**Current approach**: Direct SDK enhancement with minimal wrapper code.
+
+Legacy objects remain available for backward compatibility. See the [Migration Guide](../migration-guide) for migration details.
+
+## TypeScript Support
+
+We provide complete TypeScript definitions via a `PromisifiedConnection` interface that extends the original `Connection` interface.
+
+Benefits:
+
+- **Clean separation**: Regular `Connection` objects don’t show promisified methods in your IDE.
+- **Strong typing**: `PromisifiedConnection` objects have fully typed Promise methods with IDE support.
+- **Full compatibility**: Works anywhere `Connection` objects do, including with callback-based functions. TypeScript intelligently recognizes the usage pattern - when a callback is provided, it types the return the same way as the underlying SDK function; when no callback is provided, it correctly types the return as a `Promise`.

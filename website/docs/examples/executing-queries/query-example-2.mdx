@@ -1,0 +1,54 @@
+---
+id: query-example-2
+title: "Streaming Query Results"
+---
+
+## Documentation
+
+- [Snowflake SDK Documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume#streaming-results)
+
+Streaming allows you to process large datasets without loading all results into memory at once, preventing out-of-memory errors and improving efficiency.
+
+**Key requirement**: You must set `streamResult: true` in the execute options to enable streaming.
+
+## Modern Streaming with `for await`
+
+Traditional streaming uses event handlers like `on("data")` and `on("end")`. This example demonstrates the much simpler `for await` pattern, which makes streaming as easy as iterating over an array.
+
+## Prerequisites
+
+- You've [established a connection](../../connecting) to Snowflake and promisified it.
+
+## Example
+
+```typescript
+// Optional: TypeScript interface for strongly-typed results
+interface Customer {
+  C_CUSTKEY: number;
+  C_NAME: string;
+  C_PHONE: string;
+  C_ACCTBAL: number;
+}
+
+// Execute query with streamResult: true (this enables streaming)
+const { statement } = connection.execute<Customer>({
+  sqlText: `
+    SELECT C_CUSTKEY, C_NAME, C_PHONE, C_ACCTBAL
+    FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER
+    WHERE C_MKTSEGMENT = ?
+  `,
+  binds: ['AUTOMOBILE'],
+  streamResult: true
+});
+
+// Create a stream (optionally specify start/end for a subset)
+const stream = statement.streamRows({
+  start: 250,
+  end: 300
+});
+
+// Process results one row at a time with `for await`
+for await (const row of stream) {
+  console.log(`Customer: ${row.C_NAME}, Balance: ${row.C_ACCTBAL}`);
+}
+```

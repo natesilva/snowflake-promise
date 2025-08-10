@@ -1,0 +1,92 @@
+---
+id: comparison-4-streaming
+title: "Streaming Results"
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+This comparison shows the difference between callback-based and Promise-based result streaming.
+
+**Without** this library: Use callbacks for query execution, leading to nested callback coordination and unpredictable execution order.
+
+**With** this library: Use async/await for query execution, enabling clean sequential code flow. This example also demonstrates modern `for await` streaming instead of traditional event handlers.
+
+## Examples
+
+:::tip
+
+- Click "WITHOUT Helper Library" to see the original code
+- Click "WITH Helper Library" to see the improved code using this library
+  :::
+
+<Tabs>
+    <TabItem value="example-without" label="WITHOUT Helper Library">
+
+Based on an example from [the Snowflake SDK documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume#streaming-results).
+
+```typescript
+// Not using the Promise Helper Library
+
+connection.execute({
+  sqlText:
+    "SELECT L_COMMENT FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF100.LINEITEM LIMIT 100000",
+  streamResult: true,
+  complete: function (err, stmt) {
+    if (err) {
+      console.error("Query failed:", err);
+      return;
+    }
+    
+    const stream = stmt.streamRows();
+    // Complex event-based streaming
+    stream
+      .on("readable", function (row) {
+        while ((row = this.read()) !== null) {
+          console.log(row);
+        }
+      })
+      .on("end", function () {
+        console.log("done");
+      })
+      .on("error", function (err) {
+        console.error("Stream error:", err);
+      });
+  },
+});
+
+// This executes immediately, before streaming completes!
+console.log("This will likely execute before completion due to async behavior!");
+```
+
+    </TabItem>
+    <TabItem value="example-with" label="WITH Helper Library">
+
+```typescript
+// Using the Promise Helper Library
+
+const { statement } = connection.execute({
+  sqlText:
+    "SELECT L_COMMENT FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF100.LINEITEM LIMIT 100000",
+  streamResult: true,
+});
+
+try {
+  const stream = statement.streamRows();
+  // Using modern for await iteration
+  // (available in both approaches, but pairs well with Promises)
+  for await (const row of stream) {
+    console.log(row);
+  }
+  console.log("done");
+} catch (error) {
+  console.error("Stream error:", error);
+}
+
+// This executes after streaming completes - predictable order!
+console.log("This will execute after streaming completes.");
+```
+
+    </TabItem>
+
+</Tabs>

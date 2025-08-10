@@ -1,0 +1,67 @@
+---
+id: comparison-2-executing-a-statement
+title: "Executing a Statement"
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+This comparison shows the difference between callback-based and Promise-based query execution.
+
+**Without** this library: Use callbacks to handle execution results, leading to unpredictable code execution order.
+
+**With** this library: Simply await the execution result with predictable, sequential code flow.
+
+## Examples
+
+:::tip
+- Click “WITHOUT Helper Library” to see the original code
+- Click “WITH Helper Library” to see the improved code using this library
+:::
+
+<Tabs>
+    <TabItem value="example-without" label="WITHOUT Helper Library">
+
+Adapted from [an example in the Snowflake SDK documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute#executing-statements).
+
+```typescript
+// Not using the Promise Helper Library
+
+const statement = connection.execute({
+  sqlText: 'CREATE DATABASE testdb',
+  complete: function(err, stmt, rows) {
+    if (err) {
+      console.error('Failed to execute statement:', err.message);
+      return;
+    }
+    console.log('Successfully executed statement: ' + stmt.getSqlText());
+  }
+});
+
+// This executes immediately, before the query completes!
+console.log('This will likely execute before completion due to async behavior!');
+```
+    </TabItem>
+    <TabItem value="example-with" label="WITH Helper Library">
+
+```typescript
+// Using the Promise Helper Library
+
+try {
+  const { statement, resultsPromise } = connection.execute({
+    sqlText: 'CREATE DATABASE testdb',
+  });
+  await resultsPromise;
+  console.log('Successfully executed statement: ' + statement.getSqlText());
+} catch (error) {
+  console.error('Failed to execute statement:', error);
+  return;
+}
+
+// This executes after the query completes - predictable order!
+console.log('This will execute after the promise resolves.');
+```
+
+    </TabItem>
+
+</Tabs>

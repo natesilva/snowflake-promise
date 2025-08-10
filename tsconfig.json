@@ -1,20 +1,8 @@
 {
-  "include": [
-    "src/**/*",
-    "test/**/*"
-  ],
+  "extends": ["@tsconfig/node20/tsconfig.json", "@tsconfig/node-ts/tsconfig.json"],
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "build",
-    "target": "ES5",
-    "module": "commonjs",
-    "sourceMap": true,
-    "lib": ["es5", "es2015.promise"],
-    "noImplicitReturns": true,
-    "experimentalDecorators": true,
-    "skipLibCheck": true,
-    "pretty": true,
-    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
     "declaration": true
-  }
+  },
+  "include": ["src/**/*.ts"]
 }
