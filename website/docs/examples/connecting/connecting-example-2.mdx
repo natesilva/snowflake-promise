@@ -20,7 +20,7 @@ Key pair authentication is a Snowflake-recommended method that replaces database
 
 Key pair authentication uses two linked keys: a private key (kept secret) and a public key (shared with Snowflake). You add the public key to your Snowflake user account, then use the private key to authenticate.
 
-When you connect, your private key signs a JSON Web Token (JWT) that proves your identity. Snowflake verifies the JWT using the public key you provided. The private key is never sent to Snowflake. This method is more secure than traditional passwords because it eliminates the risk of password theft or interception.
+When you connect, your private key signs a JSON Web Token (JWT) that proves your identity. Snowflake verifies the JWT using the public key you previously provided. The private key is never sent to Snowflake. This method is more secure than traditional passwords because no password or secret is transmitted over the network or stored with Snowflake.
 
 ## Prerequisite
 
