@@ -1,6 +1,6 @@
 {
   "name": "snowflake-promise",
-  "version": "5.0.0-beta.3",
+  "version": "5.0.0-beta.4",
   "description": "A Promise-based, TypeScript-friendly helper for the Snowflake SDK",
   "repository": {
     "type": "git",
