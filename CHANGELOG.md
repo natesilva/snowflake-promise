@@ -6,6 +6,13 @@ Recent release notes follow:
 
 ---
 
+## 5.0.0 (Beta 3)
+
+- Requires Node.js v20+.
+- Improved packaging for distribution.
+
+---
+
 ## 5.0.0 (Beta)
 
 - Complete rewrite with a focus on modern JavaScript (ESM/CJS dual package) and improved TypeScript support.

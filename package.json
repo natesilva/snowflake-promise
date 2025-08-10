@@ -35,7 +35,7 @@
   ],
   "scripts": {
     "clean": "del-cli dist coverage",
-    "build": "tsup",
+    "build": "tsc && tsup",
     "prepublishOnly": "npm run clean && npm run build",
     "prettier": "prettier --write \"{src,test}/**/*.?(ts|json)\"",
     "lint": "eslint .",
@@ -69,6 +69,6 @@
     "type-fest": "^4.37.0"
   },
   "peerDependencies": {
-    "snowflake-sdk": "^2.1.3"
+    "snowflake-sdk": "^2.1"
   }
 }
