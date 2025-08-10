@@ -34,17 +34,11 @@ pnpm add snowflake-promise
 </TabItem>
 </Tabs>
 
-This library automatically installs the official `snowflake-sdk` as a `peerDependency`.
+When you install this library, the official `snowflake-sdk` will be installed automatically as a `peerDependency`. You don’t need to install it yourself. But if you require a specific version of the `snowflake-sdk`, you can install it directly and it will be used. Supported versions are 2.1 or higher within the 2.x series (i.e., >= 2.1 and < 3.0).
 
-If you require a specific version of the `snowflake-sdk`, you can install it directly and it will be used, as long as it is compatible. Supported versions are 2.1 or higher within the 2.x series (i.e., >= 2.1 and < 3.0).
+## Quick Start
 
-## The Basics
-
-### Create a Promisified Connection
-
-This library's main function is `promisifyConnection` which wraps a Snowflake `Connection` to support Promises in addition to the existing callback-based methods.
-
-First, create a connection using the official `snowflake-sdk`, then pass it to `promisifyConnection`. This returns a **PromisifiedConnection** that supports Promises for all methods that previously required callbacks.
+Wrap any Snowflake connection with `promisifyConnection` to add Promise support:
 
 ```javascript
 import snowflake from "snowflake-sdk";
@@ -61,9 +55,9 @@ const { resultsPromise } = connection.execute({ sqlText: "SELECT * FROM users" }
 const results = await resultsPromise;
 ```
 
-### Understanding the `execute` Method
+## Executing Queries
 
-The `execute` method returns an object with two properties, but most of the time you only need one of them:
+The `execute` method returns an object with two properties, `resultsPromise` and `statement`. Most of the time you only need the results:
 
 ```typescript
 const { resultsPromise } = connection.execute({
@@ -74,20 +68,13 @@ const results = await resultsPromise;
 console.log(results);
 ```
 
-The returned object contains:
-- `resultsPromise`: The Promise that resolves to your query results (this is what you want most of the time)
-- `statement`: A statement object for advanced operations (you can usually ignore this)
+- `resultsPromise` - await this for your query results
+- `statement` - use for advanced operations like cancellation (can be ignored if you don’t need it)
 
 :::tip
-For more details on the `execute` method and when you might need the `statement` object, see the [API documentation](../api-reference/#execute).
+See the [API documentation](../api-reference/#execute) for more details.
 :::
 
-### Backward Compatibility
+## Backward Compatibility
 
-Existing callback-based code continues to work unchanged. When you pass a callback to promisified methods like `connect` or `execute`, they operate in callback mode and don't return a Promise.
-
-### Available Methods
-
-All connection methods that previously required callbacks are now promisified, including `connect`, `execute`, and others.
-
-For the complete list of promisified methods, see the [API Reference](../api-reference/).
+Existing callback-based code continues to work unchanged. When you pass a callback to promisified methods like `connect` or `execute`, they operate in callback mode and don’t return a Promise. This ensures full backward compatibility with existing applications.
