@@ -69,9 +69,9 @@ connect(): Promise<Connection>;
 
 After creating a `Connection`, use its `connect` method to connect to Snowflake.
 
-The standard SDK `connect` method accepts a callback function for connection readiness. Because the callback function may not be in the same scope as the calling code, when using callbacks it may be difficult to know when a connection is ready to use. The `connection.isValidAsync()` method can be used to check connection status.
+When using the traditional SDK `connect` method, you pass a callback for connection readiness, and you can call `connection.isValidAsync()` to check for connection status.
 
-When using Promises, you generally won’t need to call `connection.isValidAsync()` because once the `Promise` resolves, the connection is ready.
+When using Promises, you won’t need to call `connection.isValidAsync()` to check this, because once the `Promise` resolves, the connection is ready.
 
 ---
 
@@ -142,12 +142,12 @@ execute<RowType>(
 Use `execute` to run SQL queries. It returns an object with two properties:
 
 ```javascript
-const { statement, resultsPromise } = connection.execute({ sqlText });
+const { resultsPromise, statement } = connection.execute({ sqlText });
 const results = await resultsPromise;
 ```
 
-- `resultsPromise`: Await this to get your query results
-- `statement`: Use this to manage or cancel long-running queries
+- `resultsPromise`: Await this to get your query results.
+- `statement`: Use this to manage or cancel long-running queries. See the [canceling queries example](../examples/executing-queries/query-example-3).
 
 :::info
 
