@@ -50,7 +50,7 @@ async function main() {
   // Connect (no callbacks -- you can use async/await)
   await promisifiedConnection.connect();
 
-  // Execute a query
+  // Execute a query (no callbacks here)
   const { resultsPromise } = promisifiedConnection.execute({
     sqlText: "SELECT COUNT(*) FROM CUSTOMER WHERE C_MKTSEGMENT=:1",
     binds: ["AUTOMOBILE"],
