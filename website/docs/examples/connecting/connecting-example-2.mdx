@@ -3,28 +3,65 @@ id: example-2-connecting-to-snowflake
 title: "Key Pair Authentication"
 ---
 
-Key pair authentication is one of Snowflake's recommended authentication methods. It eliminates passwords entirely and provides better security.
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+This example shows how to connect to Snowflake using key pair authentication.
+
+Key pair authentication is a Snowflake-recommended method that replaces database passwords with cryptographic keys for better security.
 
 ## Documentation
 
-- [Key-pair authentication and key-pair rotation](https://docs.snowflake.com/en/user-guide/key-pair-auth)
-- [Snowflake SDK documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-authenticate#use-key-pair-authentication-and-key-pair-rotation)
+- [Key-pair authentication guide](https://docs.snowflake.com/en/user-guide/key-pair-auth)
+- [SDK documentation](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-authenticate#use-key-pair-authentication-and-key-pair-rotation)
 - [Troubleshooting guide](https://community.snowflake.com/s/article/Key-Based-Authentication-Failed-with-JWT-token-is-invalid-Error)
 
+## How it Works
 
-## Prerequisites
+Key pair authentication uses two keys: a private key (kept secret) and a public key (shared with Snowflake). You add the public key to your Snowflake user account, then use the private key to authenticate.
 
-- A Snowflake user configured with key pair authentication
-- Access to the private key file (store securely using AWS Secrets Manager, Azure Key Vault, etc.)
+This is more secure than passwords because the private key never leaves your secure environment - no secrets are transmitted over the network. Instead, your private key signs a JSON Web Token (JWT) that proves your identity to Snowflake, which then verifies the signature using your public key.
+
+## Prerequisite
+
+- A Snowflake user account [with a public key added](https://docs.snowflake.com/en/user-guide/key-pair-auth#grant-the-privilege-to-assign-a-public-key-to-a-snowflake-user).
 
 ## Steps
 
-1. Load your private key securely.
-2. Create a connection with:
-    - `authenticator: "SNOWFLAKE_JWT"`
-    - `privateKey: <your-private-key>`
-3. Pass the connection to `promisifyConnection`.
-4. Call `connect()` to establish the connection.
+1. Load your private key.
+    - For development/testing, it can be read from a file.
+    - In production, use AWS Secrets Manager, Azure Key Vault, or another secure storage solution.
+2. Create a connection with the options `authenticator: "SNOWFLAKE_JWT"` and `privateKey`.
+3. Pass it to `promisifyConnection` and call `connect()`.
+
+## Generating Keys for Testing
+
+For testing, you can generate a key pair locally using [OpenSSL](https://docs.snowflake.com/en/user-guide/key-pair-auth#generate-the-private-key) (on macOS/Linux) or OpenSSH (on all platforms, including Windows).
+
+To generate a private key using OpenSSH, run the following command in your terminal:
+
+```bash
+ssh-keygen -t rsa -b 2048 -f rsa_key.p8 -m PKCS8; rm rsa_key.p8.pub
+```
+
+You'll be prompted for an optional password to protect the private key.
+
+Then generate the corresponding public key (select the command for your platform):
+
+<Tabs>
+  <TabItem value="macos-linux" label="macOS/Linux">
+```bash
+ssh-keygen -f rsa_key.p8 -e -m PKCS8 > rsa_key.pub
+```
+  </TabItem>
+  <TabItem value="windows-powershell" label="Windows PowerShell">
+```powershell
+ssh-keygen -f rsa_key.p8 -e -m PKCS8 | Out-File -FilePath rsa_key.pub -Encoding ASCII
+```
+  </TabItem>
+</Tabs>
+
+This creates `rsa_key.p8` (a private key) and `rsa_key.pub` (the corresponding public key). [Add the public key to your Snowflake user](https://docs.snowflake.com/en/user-guide/key-pair-auth#grant-the-privilege-to-assign-a-public-key-to-a-snowflake-user).
 
 ## Example
 
@@ -34,29 +71,33 @@ import * as fs from "node:fs/promises";
 import { promisifyConnection } from "snowflake-promise";
 import snowflake from "snowflake-sdk";
 
-// Get the PEM-formatted private key string from secure storage
-// Replace `getFromSecureStorage` with your actual secure storage function
-// (AWS Secrets Manager, Azure Key Vault, etc.)
-const privateKey = await getFromSecureStorage("snowflake-private-key");
+// Get the private key from secure storage, such as AWS Secrets Manager
+// or Azure Key Vault
+let privateKey = await getFromSecureStorage("snowflake-private-key");
 
-// Alternative: Read from filesystem (for development/testing only)
-// const privateKeyFile = await fs.readFile("/path/to/your/rsa_key.p8");
-// const privateKeyObject = crypto.createPrivateKey({
-//   key: privateKeyFile,
-//   format: "pem"
-// });
-// const privateKey = privateKeyObject.export({
-//   format: "pem",
-//   type: "pkcs8"
-// });
+// Alternative: Read it from the filesystem (for development/testing only)
+// let privateKey = await fs.readFile("/path/to/rsa_key.p8", "utf8");
 
+// If the key is password-protected, decrypt it:
+if (privateKey.includes("ENCRYPTED")) {
+  const privateKeyObject = crypto.createPrivateKey({
+    key: privateKey,
+    format: "pem",
+    passphrase: "your-private-key-password"
+  });
+  privateKey = privateKeyObject.export({
+    format: "pem",
+    type: "pkcs8"
+  });
+}
+
+// Create the connection, using the private key to authenticate
 const connection = promisifyConnection(
   snowflake.createConnection({
     account: "your-account",
     username: "your-username",
     authenticator: "SNOWFLAKE_JWT",
     privateKey: privateKey,
-    // Optional: specify database, schema, warehouse
   })
 );
 
