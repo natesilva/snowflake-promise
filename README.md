@@ -15,7 +15,7 @@ A modern, Promise-based interface for the [Snowflake](https://www.snowflake.net/
 
 The [official Snowflake SDK](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver) uses a callback-based API, which can be difficult to manage in modern JavaScript applications. It leads to code that’s hard to understand and hard to maintain.
 
-Promises and `async`/`await` are the modern replacement for callbacks. `snowflake-promise` provides a lightweight adapter that adds Promise support to the SDK's callback-based methods, making it easy to work with Snowflake in Node.js.
+Promises and `async`/`await` are the modern replacement for callbacks. `snowflake-promise` provides a lightweight adapter that adds Promise support to the SDK’s callback-based methods, making it easy to work with Snowflake in Node.js.
 
 ### Features
 
@@ -32,7 +32,7 @@ Promises and `async`/`await` are the modern replacement for callbacks. `snowflak
 
 `snowflake-promise` provides a lightweight adapter for the Snowflake Node.js SDK. Pass a Snowflake SDK `Connection` object to the `promisifyConnection` function, and it will be enhanced with full Promise support.
 
-Here's a simple example of how to use `snowflake-promise` to connect to Snowflake, execute a query, and handle the results:
+Here’s a simple example of how to use `snowflake-promise` to connect to Snowflake, execute a query, and handle the results:
 
 ```typescript
 import snowflakeSdk from "snowflake-sdk";
