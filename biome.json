@@ -1,8 +1,8 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.6.5/schema.json",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-  "files": { "includes": ["**", "!website"] },
-  "formatter": { "indentStyle": "space", "indentWidth": 2, "lineWidth": 90 },
+  "files": { "includes": ["src/**/*"] },
+  "formatter": { "indentStyle": "space", "lineWidth": 90 },
   "overrides": [
     {
       "includes": ["**/__tests__/**"],
