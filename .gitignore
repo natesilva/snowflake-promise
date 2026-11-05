@@ -68,3 +68,6 @@ src/test.ts
 website/.docusaurus
 website/dist
 website/build
+
+# Orca worktrees
+.orca
