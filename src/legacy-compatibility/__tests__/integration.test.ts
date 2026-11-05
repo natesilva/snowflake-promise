@@ -1,21 +1,18 @@
+import assert from "node:assert/strict";
 import { Readable } from "node:stream";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, it, mock } from "node:test";
 import type { ConnectionOptions } from "../index.ts";
-import { Snowflake } from "../index.ts";
-import { mockConnection, mockStatement, resetMocks } from "./mocks/snowflake-sdk.mock.ts";
+import {
+  mockConnection,
+  mockSdk,
+  mockStatement,
+  resetMocks,
+} from "./mocks/snowflake-sdk.mock.ts";
 
-// Mock the snowflake-sdk module
-vi.mock("snowflake-sdk", async () => {
-  const actual = await vi.importActual<typeof import("./mocks/snowflake-sdk.mock.ts")>(
-    "./mocks/snowflake-sdk.mock.ts",
-  );
+mock.module("snowflake-sdk", { namedExports: { ...mockSdk }, defaultExport: mockSdk });
 
-  // Return the mock SDK as both named exports and as default export
-  return {
-    ...actual.mockSdk,
-    default: actual.mockSdk,
-  };
-});
+const { Snowflake } = await import("../index.ts");
+type Snowflake = InstanceType<typeof Snowflake>;
 
 describe("Integration Tests", () => {
   // Sample connection options for testing
@@ -40,24 +37,22 @@ describe("Integration Tests", () => {
       await snowflake.connect();
       const rows = await snowflake.execute("SELECT * FROM test");
 
-      expect(mockConnection.connect).toHaveBeenCalled();
-      expect(mockConnection.execute).toHaveBeenCalledWith(
-        expect.objectContaining({ sqlText: "SELECT * FROM test" }),
+      assert.ok(mockConnection.connect.mock.callCount() > 0);
+      assert.equal(
+        mockConnection.execute.mock.calls[0]?.arguments[0]?.sqlText,
+        "SELECT * FROM test",
       );
-      expect(rows).toEqual([{ COLUMN1: "mock-data" }]);
+      assert.deepEqual(rows, [{ COLUMN1: "mock-data" }]);
     });
 
     it("should connect and execute a parameterized query", async () => {
       await snowflake.connect();
       const rows = await snowflake.execute("SELECT * FROM test WHERE id = ?", [123]);
 
-      expect(mockConnection.execute).toHaveBeenCalledWith(
-        expect.objectContaining({
-          sqlText: "SELECT * FROM test WHERE id = ?",
-          binds: [123],
-        }),
-      );
-      expect(rows).toEqual([{ COLUMN1: "mock-data" }]);
+      const executeOptions = mockConnection.execute.mock.calls[0]?.arguments[0];
+      assert.equal(executeOptions?.sqlText, "SELECT * FROM test WHERE id = ?");
+      assert.deepEqual(executeOptions?.binds, [123]);
+      assert.deepEqual(rows, [{ COLUMN1: "mock-data" }]);
     });
   });
 
@@ -73,13 +68,10 @@ describe("Integration Tests", () => {
       await statement.execute();
       const rows = await statement.getRows();
 
-      expect(mockConnection.execute).toHaveBeenCalledWith(
-        expect.objectContaining({
-          sqlText: "SELECT * FROM test WHERE id = ?",
-          binds: [123],
-        }),
-      );
-      expect(rows).toEqual([{ COLUMN1: "mock-data" }]);
+      const executeOptions = mockConnection.execute.mock.calls[0]?.arguments[0];
+      assert.equal(executeOptions?.sqlText, "SELECT * FROM test WHERE id = ?");
+      assert.deepEqual(executeOptions?.binds, [123]);
+      assert.deepEqual(rows, [{ COLUMN1: "mock-data" }]);
     });
 
     it("should stream results from a statement", async () => {
@@ -93,11 +85,11 @@ describe("Integration Tests", () => {
       await statement.execute();
       const stream = statement.streamRows();
 
-      expect(stream).toBeInstanceOf(Readable);
+      assert.ok(stream instanceof Readable);
 
       // Test stream functionality
-      const dataHandler = vi.fn();
-      const endHandler = vi.fn();
+      const dataHandler = mock.fn();
+      const endHandler = mock.fn();
 
       stream.on("data", dataHandler);
       stream.on("end", endHandler);
@@ -105,33 +97,35 @@ describe("Integration Tests", () => {
       // Wait for stream events to be processed
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(dataHandler).toHaveBeenCalledTimes(5);
-      expect(endHandler).toHaveBeenCalled();
+      assert.equal(dataHandler.mock.callCount(), 5);
+      assert.ok(endHandler.mock.callCount() > 0);
     });
   });
 
   describe("Error Handling", () => {
     it("should handle connection errors", async () => {
       // Mock connection failure
-      mockConnection.connect.mockImplementationOnce((callback) =>
+      mockConnection.connect.mock.mockImplementationOnce((callback) =>
         callback(new Error("Connection failed")),
       );
 
-      await expect(snowflake.connect()).rejects.toThrow("Connection failed");
+      await assert.rejects(async () => await snowflake.connect(), {
+        message: "Connection failed",
+      });
     });
 
     it("should handle query execution errors", async () => {
       await snowflake.connect();
 
       // Mock execution failure
-      mockConnection.execute.mockImplementationOnce((options) => {
+      mockConnection.execute.mock.mockImplementationOnce((options) => {
         process.nextTick(() => options.complete(new Error("Query failed")));
         return mockStatement;
       });
 
-      await expect(snowflake.execute("SELECT * FROM test")).rejects.toThrow(
-        "Query failed",
-      );
+      await assert.rejects(async () => await snowflake.execute("SELECT * FROM test"), {
+        message: "Query failed",
+      });
     });
   });
 
@@ -141,9 +135,9 @@ describe("Integration Tests", () => {
       await snowflake.execute("SELECT * FROM test");
       await snowflake.destroy();
 
-      expect(mockConnection.connect).toHaveBeenCalled();
-      expect(mockConnection.execute).toHaveBeenCalled();
-      expect(mockConnection.destroy).toHaveBeenCalled();
+      assert.ok(mockConnection.connect.mock.callCount() > 0);
+      assert.ok(mockConnection.execute.mock.callCount() > 0);
+      assert.ok(mockConnection.destroy.mock.callCount() > 0);
     });
   });
 });

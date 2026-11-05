@@ -1,29 +1,45 @@
+import assert from "node:assert/strict";
+import { afterEach, describe, it, mock } from "node:test";
 import type { RowStatement, StatementCallback } from "snowflake-sdk";
-import { describe, expect, it, vi } from "vitest";
-import { promisifyStatement } from "../promisify-statement.ts";
+
+const actualPromisifyOrNot = await import("../promisify-or-not.ts");
+const promisifyOrNotMock = mock.fn(actualPromisifyOrNot.promisifyOrNot);
+mock.module("../promisify-or-not.ts", {
+  namedExports: { promisifyOrNot: promisifyOrNotMock },
+});
+const { promisifyStatement } = await import("../promisify-statement.ts");
+
+function callCount(fn: unknown): number {
+  return (fn as ReturnType<typeof mock.fn>).mock.callCount();
+}
 
 describe("promisifyStatement", () => {
+  afterEach(() => {
+    promisifyOrNotMock.mock.resetCalls();
+    promisifyOrNotMock.mock.mockImplementation(actualPromisifyOrNot.promisifyOrNot);
+  });
+
   // Create a mock RowStatement with the necessary methods
   function createMockStatement() {
     const mockStatement = {
-      cancel: vi.fn((callback?: StatementCallback) => {
+      cancel: mock.fn((callback?: StatementCallback) => {
         if (callback) {
           callback(undefined, mockStatement as unknown as RowStatement);
         }
         return undefined;
       }),
-      getSqlText: vi.fn().mockReturnValue("SELECT * FROM test"),
-      getStatus: vi.fn().mockReturnValue("complete" as const),
-      getColumns: vi.fn().mockReturnValue([]),
-      getColumn: vi.fn().mockReturnValue({}),
-      getNumRows: vi.fn().mockReturnValue(2),
-      getNumUpdatedRows: vi.fn().mockReturnValue(0),
-      streamRows: vi.fn(),
-      fetchRows: vi.fn(),
-      getQueryId: vi.fn().mockReturnValue("query-id"),
-      getRequestId: vi.fn().mockReturnValue("request-id"),
-      getSessionState: vi.fn().mockReturnValue({}),
-      getStatementId: vi.fn().mockReturnValue("statement-id"),
+      getSqlText: mock.fn(() => "SELECT * FROM test"),
+      getStatus: mock.fn(() => "complete" as const),
+      getColumns: mock.fn(() => []),
+      getColumn: mock.fn(() => ({})),
+      getNumRows: mock.fn(() => 2),
+      getNumUpdatedRows: mock.fn(() => 0),
+      streamRows: mock.fn(),
+      fetchRows: mock.fn(),
+      getQueryId: mock.fn(() => "query-id"),
+      getRequestId: mock.fn(() => "request-id"),
+      getSessionState: mock.fn(() => ({})),
+      getStatementId: mock.fn(() => "statement-id"),
     };
     return mockStatement as unknown as RowStatement;
   }
@@ -33,15 +49,8 @@ describe("promisifyStatement", () => {
       const mockStatement = createMockStatement();
 
       // Create a mock function for the promisified cancel method
-      const promisifiedCancel = vi.fn().mockResolvedValue(undefined);
-
-      // Mock the promisifyOrNot function at the module level
-      vi.spyOn(
-        await import("../promisify-or-not.ts"),
-        "promisifyOrNot",
-      ).mockImplementation(() => {
-        return promisifiedCancel;
-      });
+      const promisifiedCancel = mock.fn(async () => undefined);
+      promisifyOrNotMock.mock.mockImplementation(() => promisifiedCancel);
 
       const promisifiedStatement = promisifyStatement(mockStatement);
 
@@ -49,21 +58,25 @@ describe("promisifyStatement", () => {
       const result = await promisifiedStatement.cancel();
 
       // The result should be undefined
-      expect(result).toBeUndefined();
+      assert.equal(result, undefined);
 
       // The promisified function should have been called
-      expect(promisifiedCancel).toHaveBeenCalled();
+      assert.equal(promisifiedCancel.mock.callCount(), 1);
     });
 
     it("should support callback for the cancel method", () => {
       const mockStatement = createMockStatement();
       const promisifiedStatement = promisifyStatement(mockStatement);
-      const callback = vi.fn() as StatementCallback;
+      const callback = mock.fn() as StatementCallback;
 
       // Test with callback
       promisifiedStatement.cancel(callback);
-      expect(mockStatement.cancel).toHaveBeenCalledWith(callback);
-      expect(callback).toHaveBeenCalled();
+      const cancel = mockStatement.cancel as unknown as ReturnType<typeof mock.fn>;
+      assert.deepEqual(cancel.mock.calls[0]?.arguments, [callback]);
+      assert.equal(
+        (callback as unknown as ReturnType<typeof mock.fn>).mock.callCount(),
+        1,
+      );
     });
 
     it("should pass through other methods unchanged", () => {
@@ -72,11 +85,11 @@ describe("promisifyStatement", () => {
 
       // Test a few methods
       promisifiedStatement.getSqlText();
-      expect(mockStatement.getSqlText).toHaveBeenCalled();
+      assert.equal(callCount(mockStatement.getSqlText), 1);
 
       promisifiedStatement.getNumRows();
-      expect(mockStatement.getNumRows).toHaveBeenCalled();
-      expect(promisifiedStatement.getNumRows()).toBe(2);
+      assert.equal(callCount(mockStatement.getNumRows), 1);
+      assert.equal(promisifiedStatement.getNumRows(), 2);
     });
 
     it("should set the __isPromisified property on the proxy", () => {
@@ -84,10 +97,10 @@ describe("promisifyStatement", () => {
       const promisifiedStatement = promisifyStatement(mockStatement);
 
       // The property should NOT be set on the original object
-      expect((mockStatement as any).__isPromisified).toBeFalsy();
+      assert.ok(!(mockStatement as any).__isPromisified);
 
       // But it should be accessible through the proxy
-      expect(promisifiedStatement.__isPromisified).toBe(true);
+      assert.equal(promisifiedStatement.__isPromisified, true);
     });
 
     it("should return the statement as-is if it's already promisified", () => {
@@ -102,7 +115,7 @@ describe("promisifyStatement", () => {
       const promisifiedStatement = promisifyStatement(mockStatement);
 
       // Should be the same object
-      expect(promisifiedStatement).toBe(mockStatement);
+      assert.equal(promisifiedStatement, mockStatement);
     });
   });
 
@@ -111,29 +124,26 @@ describe("promisifyStatement", () => {
       const mockStatement = createMockStatement();
 
       // Create a mock function that rejects with an error
-      const promisifiedCancel = vi.fn().mockRejectedValue(new Error("Test error"));
-
-      // Mock the promisifyOrNot function at the module level
-      vi.spyOn(
-        await import("../promisify-or-not.ts"),
-        "promisifyOrNot",
-      ).mockImplementation(() => {
-        return promisifiedCancel;
+      const promisifiedCancel = mock.fn(async () => {
+        throw new Error("Test error");
       });
+      promisifyOrNotMock.mock.mockImplementation(() => promisifiedCancel);
 
       const promisifiedStatement = promisifyStatement(mockStatement);
 
       // The promise should reject with the error
-      await expect(promisifiedStatement.cancel()).rejects.toThrow("Test error");
+      await assert.rejects(async () => await promisifiedStatement.cancel(), {
+        message: "Test error",
+      });
 
       // The promisified function should have been called
-      expect(promisifiedCancel).toHaveBeenCalled();
+      assert.equal(promisifiedCancel.mock.callCount(), 1);
     });
 
     it("should propagate errors when using callback", () => {
       const mockStatement = createMockStatement();
       const promisifiedStatement = promisifyStatement(mockStatement);
-      const callback = vi.fn();
+      const callback = mock.fn();
 
       // Create a mock error that matches the SnowflakeError interface
       const testError = {
@@ -144,22 +154,28 @@ describe("promisifyStatement", () => {
       } as any;
 
       // Mock the cancel method to call the callback with an error
-      (mockStatement.cancel as any).mockImplementation((callback?: StatementCallback) => {
-        if (callback) {
-          callback(testError, mockStatement as unknown as RowStatement);
-        }
-        return undefined;
-      });
+      (mockStatement.cancel as any).mock.mockImplementation(
+        (callback?: StatementCallback) => {
+          if (callback) {
+            callback(testError, mockStatement as unknown as RowStatement);
+          }
+          return undefined;
+        },
+      );
 
       // Call with a callback
       promisifiedStatement.cancel(callback as any);
 
       // The original cancel method should be called with the callback
-      expect(mockStatement.cancel).toHaveBeenCalledWith(callback);
+      assert.deepEqual((mockStatement.cancel as any).mock.calls[0]?.arguments, [
+        callback,
+      ]);
 
       // The callback should have been called with the error
-      expect(callback).toHaveBeenCalledWith(testError, expect.anything());
-      expect((callback as any).mock.calls[0][0].message).toBe("Test error");
+      const [error, statement] = callback.mock.calls[0]?.arguments ?? [];
+      assert.equal(error, testError);
+      assert.notEqual(statement, undefined);
+      assert.equal(error.message, "Test error");
     });
   });
 
@@ -168,16 +184,12 @@ describe("promisifyStatement", () => {
       const mockStatement = createMockStatement();
 
       // Create a mock function that will be bound to the target
-      const promisifiedCancel = vi.fn().mockResolvedValue(undefined);
+      const promisifiedCancel = mock.fn(async (..._args: unknown[]) => undefined);
 
-      // Mock the promisifyOrNot function to return our mock and check binding
-      vi.spyOn(
-        await import("../promisify-or-not.ts"),
-        "promisifyOrNot",
-      ).mockImplementation(() => {
+      promisifyOrNotMock.mock.mockImplementation(() => {
         // Return a function that checks if it's bound to the mockStatement
         return function (this: any, ...args: any[]) {
-          expect(this).toBe(mockStatement);
+          assert.equal(this, mockStatement);
           return promisifiedCancel.apply(this, args);
         };
       });
@@ -188,15 +200,15 @@ describe("promisifyStatement", () => {
       await promisifiedStatement.cancel();
 
       // The promisified function should have been called
-      expect(promisifiedCancel).toHaveBeenCalled();
+      assert.equal(promisifiedCancel.mock.callCount(), 1);
     });
 
     it("should preserve 'this' context for non-promisified methods", () => {
       const mockStatement = createMockStatement();
 
       // Create a new mock function that checks 'this'
-      const contextCheckMock = vi.fn(function (this: any) {
-        expect(this).toBe(mockStatement);
+      const contextCheckMock = mock.fn(function (this: any) {
+        assert.equal(this, mockStatement);
         return "SELECT * FROM test";
       });
 
@@ -206,7 +218,7 @@ describe("promisifyStatement", () => {
       const promisifiedStatement = promisifyStatement(mockStatement);
 
       promisifiedStatement.getSqlText();
-      expect(contextCheckMock).toHaveBeenCalled();
+      assert.equal(contextCheckMock.mock.callCount(), 1);
     });
   });
 
@@ -218,7 +230,7 @@ describe("promisifyStatement", () => {
 
       const promisifiedStatement = promisifyStatement(mockStatement);
 
-      expect((promisifiedStatement as any).testProperty).toBe("test value");
+      assert.equal((promisifiedStatement as any).testProperty, "test value");
     });
 
     it("should allow setting properties", () => {
@@ -227,8 +239,8 @@ describe("promisifyStatement", () => {
 
       (promisifiedStatement as any).testProperty = "new value";
 
-      expect((mockStatement as any).testProperty).toBe("new value");
-      expect((promisifiedStatement as any).testProperty).toBe("new value");
+      assert.equal((mockStatement as any).testProperty, "new value");
+      assert.equal((promisifiedStatement as any).testProperty, "new value");
     });
   });
 });
