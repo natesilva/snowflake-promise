@@ -20,7 +20,7 @@ export function promisifyStatement<T extends RowStatement>(
   stmt: T,
 ): T & PromisifiedRowStatement {
   // If the Statement is already promisified, return it as-is
-  if (stmt && Object.prototype.hasOwnProperty.call(stmt, "__isPromisified")) {
+  if (stmt && Object.hasOwn(stmt, "__isPromisified")) {
     return stmt as T & PromisifiedRowStatement;
   }
 

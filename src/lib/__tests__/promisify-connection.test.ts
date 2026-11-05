@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { promisifyConnection } from "../promisify-connection.ts";
 import type { Connection } from "snowflake-sdk";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { promisifyConnection } from "../promisify-connection.ts";
 
 // Extend Connection type to include our test methods
 interface MockConnection extends Connection {
@@ -62,7 +61,7 @@ describe("promisifyConnection", () => {
 
       // Mock the promisifyOptionsCallbackFunction at the module level
       vi.spyOn(
-        await import("../promisify-options-callback-function.js"),
+        await import("../promisify-options-callback-function.ts"),
         "promisifyOptionsCallbackFunction",
       ).mockImplementation(mockPromisifyOptionsCallbackFunction);
 
@@ -89,7 +88,7 @@ describe("promisifyConnection", () => {
 
       // Mock the promisifyOptionsCallbackFunction at the module level
       vi.spyOn(
-        await import("../promisify-options-callback-function.js"),
+        await import("../promisify-options-callback-function.ts"),
         "promisifyOptionsCallbackFunction",
       ).mockImplementation(mockPromisifyOptionsCallbackFunction);
 
@@ -120,7 +119,7 @@ describe("promisifyConnection", () => {
 
       // Mock the promisifyOrNot at the module level
       vi.spyOn(
-        await import("../promisify-or-not.js"),
+        await import("../promisify-or-not.ts"),
         "promisifyOrNot",
       ).mockImplementation(mockPromisifyOrNot);
 
@@ -148,7 +147,7 @@ describe("promisifyConnection", () => {
 
       // Mock the promisifyOrNot at the module level
       vi.spyOn(
-        await import("../promisify-or-not.js"),
+        await import("../promisify-or-not.ts"),
         "promisifyOrNot",
       ).mockImplementation(mockPromisifyOrNot);
 
@@ -176,7 +175,7 @@ describe("promisifyConnection", () => {
 
       // Mock the promisifyOrNot at the module level
       vi.spyOn(
-        await import("../promisify-or-not.js"),
+        await import("../promisify-or-not.ts"),
         "promisifyOrNot",
       ).mockImplementation(mockPromisifyOrNot);
 
@@ -211,7 +210,7 @@ describe("promisifyConnection", () => {
       const contextTracker = { context: null as any };
 
       // Mock the module import
-      const module = await import("../promisify-options-callback-function.js");
+      const module = await import("../promisify-options-callback-function.ts");
 
       // Create a spy that just records the context
       const spy = vi.spyOn(module, "promisifyOptionsCallbackFunction");
@@ -226,7 +225,7 @@ describe("promisifyConnection", () => {
 
       // We need to mock the statement returned by execute to avoid errors
       vi.spyOn(
-        await import("../promisify-statement.js"),
+        await import("../promisify-statement.ts"),
         "promisifyStatement",
       ).mockImplementation((stmt) => {
         return { ...stmt, __isPromisified: true } as any;
@@ -256,7 +255,7 @@ describe("promisifyConnection", () => {
 
       // Mock the promisifyOrNot to return our mock and check binding
       vi.spyOn(
-        await import("../promisify-or-not.js"),
+        await import("../promisify-or-not.ts"),
         "promisifyOrNot",
       ).mockImplementation(() => {
         // Return a function that checks if it's bound to the mockConnection
@@ -323,16 +322,13 @@ describe("promisifyConnection", () => {
   });
 
   describe("integration with real dependencies", () => {
-    // Reset the mocks to use the real implementations
-    beforeEach(() => {
-      vi.restoreAllMocks();
-    });
-
-    // Mock promisifyStatement for integration tests
     beforeEach(async () => {
+    // Reset the mocks to use the real implementations
+      vi.restoreAllMocks();
+
       // Mock promisifyStatement to return the statement with __isPromisified set to true
       vi.spyOn(
-        await import("../promisify-statement.js"),
+        await import("../promisify-statement.ts"),
         "promisifyStatement",
       ).mockImplementation((stmt) => {
         // Create a new object with __isPromisified set to true

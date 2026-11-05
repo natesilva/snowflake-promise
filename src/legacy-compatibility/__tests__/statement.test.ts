@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Connection } from "snowflake-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
@@ -6,16 +5,16 @@ import {
   StatementAlreadyExecutedError,
   StatementNotCompleteError,
   StatementNotExecutedError,
-} from "../index.js";
-import { mockConnection, mockStatement, resetMocks } from "./mocks/snowflake-sdk.mock.ts";
+} from "../index.ts";
 import { warnLegacyInterface } from "../warn-legacy-interface.ts";
+import { mockConnection, mockStatement, resetMocks } from "./mocks/snowflake-sdk.mock.ts";
 
 vi.mock("../warn-legacy-interface.ts", () => ({ warnLegacyInterface: vi.fn() }));
 
 // Mock the snowflake-sdk module
 vi.mock("snowflake-sdk", async () => {
-  const actual = await vi.importActual<typeof import("./mocks/snowflake-sdk.mock.js")>(
-    "./mocks/snowflake-sdk.mock.js",
+  const actual = await vi.importActual<typeof import("./mocks/snowflake-sdk.mock.ts")>(
+    "./mocks/snowflake-sdk.mock.ts",
   );
 
   // Return the mock SDK as both named exports and as default export

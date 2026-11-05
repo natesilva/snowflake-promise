@@ -37,8 +37,8 @@
     "clean": "del-cli dist coverage",
     "build": "tsup",
     "prepublishOnly": "npm run clean && npm run build",
-    "prettier": "prettier --write \"{src,test}/**/*.?(ts|json)\"",
-    "lint": "tsc && eslint .",
+    "format": "biome format --write",
+    "lint": "tsc && biome check",
     "test": "vitest run",
     "test:watch": "vitest --ui --coverage.enabled=true",
     "test:coverage": "vitest run --coverage"
@@ -47,24 +47,17 @@
     "node": ">=22"
   },
   "devDependencies": {
-    "@eslint/js": "^9.22.0",
+    "@biomejs/biome": "2.6.5",
     "@tsconfig/node-ts": "^23.6.1",
     "@tsconfig/node22": "^22.0.6",
     "@types/node": "^22.20.5",
     "@vitest/coverage-v8": "^5.1.0",
     "@vitest/ui": "^5.1.0",
     "del-cli": "^6.0.0",
-    "eslint": "^9.22.0",
-    "prettier": "^3.5.3",
     "snowflake-sdk": "^3.4.1",
     "tsup": "^8.5.0",
-    "tsx": "^4.19.3",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.26.1",
     "vitest": "^5.1.0"
-  },
-  "volta": {
-    "node": "22.23.4"
   },
   "dependencies": {
     "type-fest": "^4.37.0"

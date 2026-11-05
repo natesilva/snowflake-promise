@@ -1,5 +1,5 @@
+import { Readable } from "node:stream";
 import { vi } from "vitest";
-import { Readable } from "stream";
 
 // Create a mock Readable stream
 class MockReadable extends Readable {
@@ -61,7 +61,7 @@ const mockSdk = {
 };
 
 // Export the mock objects so tests can access and configure them
-export { mockSdk, mockConnection, mockStatement };
+export { mockConnection, mockSdk, mockStatement };
 
 // Export a function to reset all mocks
 export function resetMocks() {

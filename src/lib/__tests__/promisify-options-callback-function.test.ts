@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, vi } from "vitest";
-import { promisifyOptionsCallbackFunction } from "../promisify-options-callback-function.ts";
 import type { Connection } from "snowflake-sdk";
+import { describe, expect, it, vi } from "vitest";
+import { promisifyOptionsCallbackFunction } from "../promisify-options-callback-function.ts";
 
 describe("promisifyOptionsCallbackFunction", () => {
   // Mock types to match Snowflake SDK
@@ -105,7 +104,6 @@ describe("promisifyOptionsCallbackFunction", () => {
   );
 
   // Mock function that throws an error during statement creation
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const mockErrorFunction = vi.fn((_options: MockStatementOption): MockStatement => {
     throw new Error("Statement creation error");
   });

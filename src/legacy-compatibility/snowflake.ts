@@ -5,7 +5,7 @@ import { Statement } from "./statement.ts";
 import type { ConfigureOptions } from "./types/ConfigureOptions.ts";
 import type { ConnectionOptions } from "./types/ConnectionOptions.ts";
 import type { ExecuteOptions } from "./types/ExecuteOptions.ts";
-import { toSdkLogLevel, type LoggingOptions } from "./types/LoggingOptions.ts";
+import { type LoggingOptions, toSdkLogLevel } from "./types/LoggingOptions.ts";
 import { warnLegacyInterface } from "./warn-legacy-interface.ts";
 
 /**
@@ -22,10 +22,10 @@ export class Snowflake {
     configureOptions?: ConfigureOptions,
   ) {
     warnLegacyInterface();
-    if (loggingOptions && loggingOptions.logLevel) {
+    if (loggingOptions?.logLevel) {
       SDK.configure({ logLevel: toSdkLogLevel(loggingOptions.logLevel) });
     }
-    this.logSql = (loggingOptions && loggingOptions.logSql) ?? undefined;
+    this.logSql = loggingOptions?.logSql ?? undefined;
     if (configureOptions) {
       SDK.configure(configureOptions);
     }
@@ -53,7 +53,7 @@ export class Snowflake {
   }
 
   /** A convenience function to execute a SQL statement and return the resulting rows. */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: bind values are untyped in the Snowflake SDK
   async execute(sqlText: string, binds?: any[]) {
     const { resultsPromise } = this.connection.execute({ sqlText, binds });
     const rows = await resultsPromise;

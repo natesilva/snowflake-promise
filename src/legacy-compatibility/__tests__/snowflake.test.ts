@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ConnectionOptions } from "../index.ts";
 import { Snowflake } from "../index.ts";
-import { mockConnection, mockSdk, resetMocks } from "./mocks/snowflake-sdk.mock.ts";
 import { warnLegacyInterface } from "../warn-legacy-interface.ts";
+import { mockConnection, mockSdk, resetMocks } from "./mocks/snowflake-sdk.mock.ts";
 
 vi.mock("../warn-legacy-interface.ts", () => ({ warnLegacyInterface: vi.fn() }));
 
 // Mock the snowflake-sdk module
 vi.mock("snowflake-sdk", async () => {
-  const actual = await vi.importActual<typeof import("./mocks/snowflake-sdk.mock.js")>(
-    "./mocks/snowflake-sdk.mock.js",
+  const actual = await vi.importActual<typeof import("./mocks/snowflake-sdk.mock.ts")>(
+    "./mocks/snowflake-sdk.mock.ts",
   );
 
   // Return the mock SDK as both named exports and as default export
@@ -33,25 +33,25 @@ describe("Snowflake", () => {
 
   describe("constructor", () => {
     it("should create a connection with the provided options", () => {
-      const snowflake_ = new Snowflake(connectionOptions);
+      const _snowflake_ = new Snowflake(connectionOptions);
       expect(mockSdk.createConnection).toHaveBeenCalledWith(connectionOptions);
     });
 
     it("should configure SDK with logLevel if provided", () => {
-      const snowflake_ = new Snowflake(connectionOptions, { logLevel: "debug" });
+      const _snowflake_ = new Snowflake(connectionOptions, { logLevel: "debug" });
       expect(mockSdk.configure).toHaveBeenCalledWith({
         logLevel: expect.toBeOneOf(["debug", "DEBUG"]),
       });
     });
 
     it("should warn that the legacy interface is deprecated", () => {
-      const snowflake_ = new Snowflake(connectionOptions);
+      const _snowflake_ = new Snowflake(connectionOptions);
       expect(warnLegacyInterface).toHaveBeenCalled();
     });
 
     it("should handle configureOptions if provided as an object", () => {
       const configureOptions = { ocspFailOpen: true };
-      const snowflake_ = new Snowflake(connectionOptions, {}, configureOptions);
+      const _snowflake_ = new Snowflake(connectionOptions, {}, configureOptions);
       expect(mockSdk.configure).toHaveBeenCalledWith(configureOptions);
     });
   });
