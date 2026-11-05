@@ -137,7 +137,9 @@ describe("promisifyOrNot", () => {
       assert.equal(await wrappedFn(), "no args result");
     });
 
-    it("should handle async functions that use callbacks", async () => {
+    it("should handle async functions that use callbacks", async (t) => {
+      t.mock.method(process, "emitWarning", () => {});
+
       async function asyncFunction(
         value: string,
         callback: (error: Error | null, result: string) => void,
