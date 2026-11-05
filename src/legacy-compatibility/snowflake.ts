@@ -6,6 +6,7 @@ import type { ConfigureOptions } from "./types/ConfigureOptions.ts";
 import type { ConnectionOptions } from "./types/ConnectionOptions.ts";
 import type { ExecuteOptions } from "./types/ExecuteOptions.ts";
 import { toSdkLogLevel, type LoggingOptions } from "./types/LoggingOptions.ts";
+import { warnLegacyInterface } from "./warn-legacy-interface.ts";
 
 /**
  * @deprecated Use the standard Snowflake SDK. First get a connection and then call
@@ -18,21 +19,14 @@ export class Snowflake {
   constructor(
     connectionOptions: ConnectionOptions,
     loggingOptions: LoggingOptions = {},
-    configureOptions?: ConfigureOptions | boolean,
+    configureOptions?: ConfigureOptions,
   ) {
+    warnLegacyInterface();
     if (loggingOptions && loggingOptions.logLevel) {
       SDK.configure({ logLevel: toSdkLogLevel(loggingOptions.logLevel) });
     }
     this.logSql = (loggingOptions && loggingOptions.logSql) ?? undefined;
-    // For backward compatibility, configureOptions is allowed to be a boolean, but
-    // it’s ignored. The new default settings accomplish the same thing as the old
-    // `insecureConnect` boolean.
-    if (typeof configureOptions === "boolean") {
-      console.warn(
-        "[snowflake-promise] the insecureConnect boolean argument is deprecated; " +
-          "please remove it or use the ocspFailOpen configure option",
-      );
-    } else if (typeof configureOptions === "object") {
+    if (configureOptions) {
       SDK.configure(configureOptions);
     }
     this.connection = promisifyConnection(SDK.createConnection(connectionOptions));

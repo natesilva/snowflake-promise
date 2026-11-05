@@ -4,9 +4,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   Statement,
   StatementAlreadyExecutedError,
+  StatementNotCompleteError,
   StatementNotExecutedError,
 } from "../index.js";
 import { mockConnection, mockStatement, resetMocks } from "./mocks/snowflake-sdk.mock.ts";
+import { warnLegacyInterface } from "../warn-legacy-interface.ts";
+
+vi.mock("../warn-legacy-interface.ts", () => ({ warnLegacyInterface: vi.fn() }));
 
 // Mock the snowflake-sdk module
 vi.mock("snowflake-sdk", async () => {
@@ -28,6 +32,17 @@ describe("Statement", () => {
   beforeEach(() => {
     resetMocks();
     statement = new Statement(mockConnection as unknown as Connection, executeOptions);
+  });
+
+  describe("constructor", () => {
+    it("should warn that the legacy interface is deprecated", () => {
+      const statement_ = new Statement(
+        mockConnection as unknown as Connection,
+        executeOptions,
+      );
+      expect(statement_).toBeInstanceOf(Statement);
+      expect(warnLegacyInterface).toHaveBeenCalled();
+    });
   });
 
   describe("execute", () => {
@@ -172,6 +187,11 @@ describe("Statement", () => {
     it("getColumns should return columns", () => {
       expect(statement.getColumns()).toEqual([{ name: "COLUMN1", type: "TEXT" }]);
       expect(mockStatement.getColumns).toHaveBeenCalled();
+    });
+
+    it("getColumns should throw StatementNotCompleteError if the SDK has no columns yet", () => {
+      mockStatement.getColumns.mockReturnValueOnce(undefined as unknown as never);
+      expect(() => statement.getColumns()).toThrow(StatementNotCompleteError);
     });
 
     it("getColumn should return a specific column", () => {
