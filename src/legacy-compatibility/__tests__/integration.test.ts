@@ -9,6 +9,7 @@ import {
   resetMocks,
 } from "./mocks/snowflake-sdk.mock.ts";
 
+mock.method(process, "emitWarning", () => {});
 mock.module("snowflake-sdk", { namedExports: { ...mockSdk }, defaultExport: mockSdk });
 
 const { Snowflake } = await import("../index.ts");

@@ -39,9 +39,9 @@
     "prepublishOnly": "npm run build",
     "format": "biome format --write",
     "lint": "tsc && biome check",
-    "test": "node --experimental-test-module-mocks --test \"src/**/*.test.ts\"",
-    "test:watch": "node --experimental-test-module-mocks --test --watch \"src/**/*.test.ts\"",
-    "test:coverage": "node --experimental-test-module-mocks --experimental-test-coverage --test-coverage-include=\"src/**\" --test-coverage-exclude=\"**/__tests__/**\" --test \"src/**/*.test.ts\""
+    "test": "node --experimental-test-module-mocks --disable-warning=ExperimentalWarning --test \"src/**/*.test.ts\"",
+    "test:watch": "node --experimental-test-module-mocks --disable-warning=ExperimentalWarning --test --watch \"src/**/*.test.ts\"",
+    "test:coverage": "node --experimental-test-module-mocks --disable-warning=ExperimentalWarning --experimental-test-coverage --test-coverage-include=\"src/**\" --test-coverage-exclude=\"**/__tests__/**\" --test \"src/**/*.test.ts\""
   },
   "engines": {
     "node": ">=22"
