@@ -323,7 +323,7 @@ describe("promisifyConnection", () => {
 
   describe("integration with real dependencies", () => {
     beforeEach(async () => {
-    // Reset the mocks to use the real implementations
+      // Reset the mocks to use the real implementations
       vi.restoreAllMocks();
 
       // Mock promisifyStatement to return the statement with __isPromisified set to true
