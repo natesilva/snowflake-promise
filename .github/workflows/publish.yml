@@ -8,7 +8,8 @@ permissions:
   contents: read
 
 jobs:
-  # Publishes to npm with trusted publishing (OIDC). No npm token is stored.
+  # Stages the package on npm with trusted publishing (OIDC). No npm token is stored.
+  # A maintainer must approve the staged version on npmjs.com before it is public.
   # The npm-publish environment requires manual approval before this job starts.
   publish:
     runs-on: ubuntu-latest
@@ -28,4 +29,4 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm test
-      - run: npm publish
+      - run: npm stage publish
