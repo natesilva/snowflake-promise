@@ -2,7 +2,6 @@
   "extends": ["@tsconfig/node22/tsconfig.json", "@tsconfig/node-ts/tsconfig.json"],
   "compilerOptions": {
     "noEmit": true,
-    "declaration": true,
     "types": ["node"]
   },
   "include": ["src/**/*.ts"]
