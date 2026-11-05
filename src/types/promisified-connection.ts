@@ -6,6 +6,9 @@ import type { PromisifiedRowStatement } from "./promisified-row-statement.ts";
 // Helper definitions to simplify the interface declaration below
 type StatementOptionWithoutCallback = Omit<snowflake.StatementOption, "complete">;
 type StatementOptionWithCallback = SetRequired<snowflake.StatementOption, "complete">;
+type FetchResultOption = Parameters<Connection["fetchResult"]>[0];
+type FetchResultOptionWithoutCallback = Omit<FetchResultOption, "complete">;
+type FetchResultOptionWithCallback = SetRequired<FetchResultOption, "complete">;
 type StatementOptionMethodResult<RowType> = {
   statement: PromisifiedRowStatement;
   resultsPromise: Promise<Array<RowType> | undefined>;
@@ -20,15 +23,15 @@ export interface PromisifiedConnection extends Connection {
     options: StatementOptionWithoutCallback,
   ): StatementOptionMethodResult<RowType>;
 
-  fetchResult(options: StatementOptionWithCallback): RowStatement;
+  fetchResult(options: FetchResultOptionWithCallback): RowStatement;
   fetchResult<RowType>(
-    options: StatementOptionWithoutCallback,
+    options: FetchResultOptionWithoutCallback,
   ): StatementOptionMethodResult<RowType>;
 
-  connect(callback: ConnectionCallback): void;
+  connect(callback: ConnectionCallback): Connection;
   connect(): Promise<Connection>;
 
-  connectAsync(callback: ConnectionCallback): Promise<void>;
+  connectAsync(callback: ConnectionCallback): Promise<Connection>;
   connectAsync(): Promise<Connection>;
 
   destroy(fn: ConnectionCallback): void;

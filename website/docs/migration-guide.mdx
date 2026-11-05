@@ -145,7 +145,7 @@ const snowflake = new Snowflake(
 // Configure SDK options before creating connection
 snowflakeSdk.configure({
   logLevel: "INFO",
-  // Note: ocspFailOpen now defaults to true, so no need to set it explicitly
+  // Note: snowflake-sdk 3.x disables OCSP by default, so ocspFailOpen is not needed
 });
 ```
 

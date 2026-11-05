@@ -5,8 +5,10 @@ import { promisifyConnection } from "../lib/promisify-connection.ts";
 import type { PromisifiedConnection } from "../types/promisified-connection.ts";
 import { StatementAlreadyExecutedError } from "./index.ts";
 import type { ExecuteOptions } from "./types/ExecuteOptions.ts";
+import { StatementNotCompleteError } from "./types/StatementNotCompleteError.ts";
 import { StatementNotExecutedError } from "./types/StatementNotExecutedError.ts";
 import type { StreamRowsOptions } from "./types/StreamRowsOptions.ts";
+import { warnLegacyInterface } from "./warn-legacy-interface.ts";
 
 /**
  * @deprecated Use the standard Snowflake SDK. First get a connection and then call
@@ -27,6 +29,7 @@ export class Statement {
     executeOptions: ExecuteOptions,
     logSql?: (sqlText: string) => void,
   ) {
+    warnLegacyInterface();
     this.connection = promisifyConnection(connection);
     this.executeOptions = executeOptions;
     this.logSql = logSql;
@@ -94,7 +97,11 @@ export class Statement {
       throw new StatementNotExecutedError();
     }
     assert(this.stmt, "Statement must be executed before getting columns");
-    return this.stmt.getColumns();
+    const columns = this.stmt.getColumns();
+    if (!columns) {
+      throw new StatementNotCompleteError();
+    }
+    return columns;
   }
 
   getColumn(columnIdentifier: string | number) {

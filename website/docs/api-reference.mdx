@@ -59,7 +59,7 @@ That means that your callback-based code will continue to work, even with a prom
 
 ```typescript
 // original SDK signature
-connect(callback: ConnectionCallback): void;
+connect(callback: ConnectionCallback): Connection;
 
 // promisified signature
 connect(): Promise<Connection>;
@@ -83,7 +83,7 @@ When using Promises, you won’t need to call `connection.isValidAsync()` to che
 
 ```typescript
 // original SDK signature
-connectAsync(callback: ConnectionCallback): Promise<void>;
+connectAsync(callback: ConnectionCallback): Promise<Connection>;
 
 // promisified signature
 connectAsync(): Promise<Connection>;

@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ConnectionOptions } from "../index.ts";
 import { Snowflake } from "../index.ts";
 import { mockConnection, mockSdk, resetMocks } from "./mocks/snowflake-sdk.mock.ts";
+import { warnLegacyInterface } from "../warn-legacy-interface.ts";
+
+vi.mock("../warn-legacy-interface.ts", () => ({ warnLegacyInterface: vi.fn() }));
 
 // Mock the snowflake-sdk module
 vi.mock("snowflake-sdk", async () => {
@@ -41,23 +44,15 @@ describe("Snowflake", () => {
       });
     });
 
+    it("should warn that the legacy interface is deprecated", () => {
+      const snowflake_ = new Snowflake(connectionOptions);
+      expect(warnLegacyInterface).toHaveBeenCalled();
+    });
+
     it("should handle configureOptions if provided as an object", () => {
       const configureOptions = { ocspFailOpen: true };
       const snowflake_ = new Snowflake(connectionOptions, {}, configureOptions);
       expect(mockSdk.configure).toHaveBeenCalledWith(configureOptions);
-    });
-
-    it("should warn but not fail if configureOptions is provided as a boolean", () => {
-      // Mock console.warn
-      const originalWarn = console.warn;
-      console.warn = vi.fn();
-
-      const snowflake_ = new Snowflake(connectionOptions, {}, true);
-
-      expect(console.warn).toHaveBeenCalled();
-
-      // Restore console.warn
-      console.warn = originalWarn;
     });
   });
 
