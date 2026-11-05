@@ -1,8 +1,23 @@
+import assert from "node:assert/strict";
+import { afterEach, describe, it, mock } from "node:test";
 import type { Connection } from "snowflake-sdk";
-import { describe, expect, it, vi } from "vitest";
 import { promisifyOptionsCallbackFunction } from "../promisify-options-callback-function.ts";
 
 describe("promisifyOptionsCallbackFunction", () => {
+  afterEach(() => {
+    mockSnowflakeFunction.mock.resetCalls();
+    mockAsyncSnowflakeFunction.mock.resetCalls();
+    mockErrorFunction.mock.resetCalls();
+  });
+
+  function firstOptions(fn: {
+    mock: { calls: { arguments: unknown[] }[] };
+  }): MockStatementOption {
+    const options = fn.mock.calls[0]?.arguments[0];
+    assert.ok(options);
+    return options as MockStatementOption;
+  }
+
   // Mock types to match Snowflake SDK
   type MockRowType = { id: number; name: string };
 
@@ -29,19 +44,19 @@ describe("promisifyOptionsCallbackFunction", () => {
   // Create a helper function to create a mock statement
   function createMockStatement(): MockStatement {
     return {
-      cancel: vi.fn(),
-      getSqlText: vi.fn().mockReturnValue("SELECT * FROM test"),
-      getStatus: vi.fn().mockReturnValue("SUCCEEDED"),
-      getColumns: vi.fn().mockReturnValue([]),
-      getColumn: vi.fn().mockReturnValue({}),
-      getNumRows: vi.fn().mockReturnValue(2),
-      getNumUpdatedRows: vi.fn().mockReturnValue(0),
-      streamRows: vi.fn(),
-      fetchRows: vi.fn(),
-      getQueryId: vi.fn().mockReturnValue("query-id"),
-      getRequestId: vi.fn().mockReturnValue("request-id"),
-      getSessionState: vi.fn().mockReturnValue({}),
-      getStatementId: vi.fn().mockReturnValue("statement-id"),
+      cancel: mock.fn(),
+      getSqlText: mock.fn(() => "SELECT * FROM test"),
+      getStatus: mock.fn(() => "SUCCEEDED"),
+      getColumns: mock.fn(() => []),
+      getColumn: mock.fn(() => ({})),
+      getNumRows: mock.fn(() => 2),
+      getNumUpdatedRows: mock.fn(() => 0),
+      streamRows: mock.fn(),
+      fetchRows: mock.fn(),
+      getQueryId: mock.fn(() => "query-id"),
+      getRequestId: mock.fn(() => "request-id"),
+      getSessionState: mock.fn(() => ({})),
+      getStatementId: mock.fn(() => "statement-id"),
     };
   }
 
@@ -59,7 +74,7 @@ describe("promisifyOptionsCallbackFunction", () => {
   }
 
   // Mock function that simulates Snowflake's pattern with options.complete callback
-  const mockSnowflakeFunction = vi.fn((options: MockStatementOption): MockStatement => {
+  const mockSnowflakeFunction = mock.fn((options: MockStatementOption): MockStatement => {
     const statement = createMockStatement();
 
     // Call the complete callback if provided
@@ -79,7 +94,7 @@ describe("promisifyOptionsCallbackFunction", () => {
   });
 
   // Mock function that returns a promise (simulating an async Snowflake function)
-  const mockAsyncSnowflakeFunction = vi.fn(
+  const mockAsyncSnowflakeFunction = mock.fn(
     async (options: MockStatementOption): Promise<MockStatement> => {
       const statement = createMockStatement();
 
@@ -104,7 +119,7 @@ describe("promisifyOptionsCallbackFunction", () => {
   );
 
   // Mock function that throws an error during statement creation
-  const mockErrorFunction = vi.fn((_options: MockStatementOption): MockStatement => {
+  const mockErrorFunction = mock.fn((_options: MockStatementOption): MockStatement => {
     throw new Error("Statement creation error");
   });
 
@@ -115,7 +130,7 @@ describe("promisifyOptionsCallbackFunction", () => {
         mockSnowflakeFunction as any,
       );
 
-      const callback = vi.fn();
+      const callback = mock.fn();
       const options: MockStatementOption = {
         sqlText: "SELECT * FROM test",
         complete: callback,
@@ -124,7 +139,7 @@ describe("promisifyOptionsCallbackFunction", () => {
       wrappedFn(options as any);
 
       // Verify that the original function is called with the provided options
-      expect(mockSnowflakeFunction).toHaveBeenCalledWith(options);
+      assert.deepEqual(mockSnowflakeFunction.mock.calls[0]?.arguments, [options]);
     });
   });
 
@@ -142,21 +157,18 @@ describe("promisifyOptionsCallbackFunction", () => {
 
       const result = await wrappedFn(options as any);
 
-      expect(mockSnowflakeFunction).toHaveBeenCalledWith(
-        expect.objectContaining({
-          complete: expect.any(Function),
-        }),
-      );
+      const calledWith = firstOptions(mockSnowflakeFunction);
+      assert.equal(typeof calledWith.complete, "function");
 
       // Verify the structure of the returned object
-      expect(result).toHaveProperty("statement");
-      expect(result).toHaveProperty("resultsPromise");
-      expect(result.statement).toHaveProperty("cancel");
-      expect(result.resultsPromise).toBeInstanceOf(Promise);
+      assert.ok("statement" in result);
+      assert.ok("resultsPromise" in result);
+      assert.ok("cancel" in result.statement);
+      assert.ok(result.resultsPromise instanceof Promise);
 
       // Verify the rows promise resolves with the expected data
       const rows = await result.resultsPromise;
-      expect(rows).toEqual([
+      assert.deepEqual(rows, [
         { id: 1, name: "Row 1" },
         { id: 2, name: "Row 2" },
       ]);
@@ -177,10 +189,10 @@ describe("promisifyOptionsCallbackFunction", () => {
       const result = await wrappedFn(options as any);
 
       // The statement should still be available
-      expect(result.statement).toHaveProperty("cancel");
+      assert.ok("cancel" in result.statement);
 
       // But the rows promise should reject
-      await expect(result.resultsPromise).rejects.toThrow("Test error");
+      await assert.rejects(result.resultsPromise, { message: "Test error" });
     });
 
     it("should handle errors during statement creation", async () => {
@@ -194,9 +206,12 @@ describe("promisifyOptionsCallbackFunction", () => {
       };
 
       // The error is thrown directly from the mock function, so we need to catch it
-      await expect(async () => {
-        await wrappedFn(options as any);
-      }).rejects.toThrow("Statement creation error");
+      await assert.rejects(
+        async () => {
+          await wrappedFn(options as any);
+        },
+        { message: "Statement creation error" },
+      );
     });
 
     it("should work with async functions", async () => {
@@ -211,19 +226,16 @@ describe("promisifyOptionsCallbackFunction", () => {
 
       const result = await wrappedFn(options as any);
 
-      expect(mockAsyncSnowflakeFunction).toHaveBeenCalledWith(
-        expect.objectContaining({
-          complete: expect.any(Function),
-        }),
-      );
+      const calledWith = firstOptions(mockAsyncSnowflakeFunction);
+      assert.equal(typeof calledWith.complete, "function");
 
       // Verify the structure of the returned object
-      expect(result).toHaveProperty("statement");
-      expect(result).toHaveProperty("resultsPromise");
+      assert.ok("statement" in result);
+      assert.ok("resultsPromise" in result);
 
       // Verify the rows promise resolves with the expected data
       const rows = await result.resultsPromise;
-      expect(rows).toEqual([
+      assert.deepEqual(rows, [
         { id: 1, name: "Row 1" },
         { id: 2, name: "Row 2" },
       ]);
@@ -242,7 +254,7 @@ describe("promisifyOptionsCallbackFunction", () => {
         contextObject.fn as any,
       );
 
-      const callback = vi.fn();
+      const callback = mock.fn();
       const options: MockStatementOption = {
         sqlText: "SELECT * FROM test",
         complete: callback,
@@ -250,8 +262,8 @@ describe("promisifyOptionsCallbackFunction", () => {
 
       wrappedFn(options as any);
 
-      expect(mockSnowflakeFunction).toHaveBeenCalledWith(options);
-      expect(mockSnowflakeFunction.mock.instances[0]).toBe(contextObject);
+      assert.deepEqual(mockSnowflakeFunction.mock.calls[0]?.arguments, [options]);
+      assert.equal(mockSnowflakeFunction.mock.calls[0]?.this, contextObject);
     });
 
     it("should preserve 'this' context when using promise", async () => {
@@ -271,12 +283,9 @@ describe("promisifyOptionsCallbackFunction", () => {
 
       await wrappedFn(options as any);
 
-      expect(mockSnowflakeFunction).toHaveBeenCalledWith(
-        expect.objectContaining({
-          complete: expect.any(Function),
-        }),
-      );
-      expect(mockSnowflakeFunction.mock.instances[0]).toBe(contextObject);
+      const calledWith = firstOptions(mockSnowflakeFunction);
+      assert.equal(typeof calledWith.complete, "function");
+      assert.equal(mockSnowflakeFunction.mock.calls[0]?.this, contextObject);
     });
   });
 
@@ -296,18 +305,15 @@ describe("promisifyOptionsCallbackFunction", () => {
       const result = await wrappedFn(options as any);
 
       // Verify that all original options are preserved
-      expect(mockSnowflakeFunction).toHaveBeenCalledWith(
-        expect.objectContaining({
-          sqlText: "SELECT * FROM table",
-          binds: [1, 2, 3],
-          customProperty: "custom value",
-          complete: expect.any(Function),
-        }),
-      );
+      const calledWith = firstOptions(mockSnowflakeFunction);
+      assert.equal(typeof calledWith.complete, "function");
+      assert.equal(calledWith.sqlText, "SELECT * FROM table");
+      assert.deepEqual(calledWith.binds, [1, 2, 3]);
+      assert.equal(calledWith.customProperty, "custom value");
 
       // Verify the rows promise resolves with the expected data
       const rows = await result.resultsPromise;
-      expect(rows).toEqual([
+      assert.deepEqual(rows, [
         { id: 1, name: "Row 1" },
         { id: 2, name: "Row 2" },
       ]);

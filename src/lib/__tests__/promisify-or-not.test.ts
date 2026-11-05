@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
+import assert from "node:assert/strict";
+import { describe, it, mock } from "node:test";
 import { promisifyOrNot } from "../promisify-or-not.ts";
 
 describe("promisifyOrNot", () => {
@@ -37,43 +38,46 @@ describe("promisifyOrNot", () => {
   describe("callback approach", () => {
     it("should work with callback and return correct result", () => {
       const wrappedFn = promisifyOrNot(exampleFunction);
-      const callback = vi.fn();
+      const callback = mock.fn();
 
       wrappedFn("test", callback);
 
-      expect(callback).toHaveBeenCalledWith(null, "Result: test");
+      assert.deepEqual(callback.mock.calls[0]?.arguments, [null, "Result: test"]);
     });
 
     it("should propagate errors when using callback", () => {
       const wrappedFn = promisifyOrNot(exampleFunction);
-      const callback = vi.fn();
+      const callback = mock.fn();
 
       wrappedFn("error", callback);
 
-      expect(callback).toHaveBeenCalledWith(expect.any(Error), "");
-      const error = callback.mock.calls[0][0];
-      expect(error.message).toBe("Test error");
+      const [error, result] = callback.mock.calls[0]?.arguments ?? [];
+      assert.ok(error instanceof Error);
+      assert.equal(error.message, "Test error");
+      assert.equal(result, "");
     });
 
     it("should work with multiple arguments", () => {
       const wrappedFn = promisifyOrNot(multiArgFunction);
-      const callback = vi.fn();
+      const callback = mock.fn();
 
       wrappedFn("hello", 42, true, callback);
 
-      expect(callback).toHaveBeenCalledWith(null, "hello-42-true");
+      assert.deepEqual(callback.mock.calls[0]?.arguments, [null, "hello-42-true"]);
     });
 
     it("should preserve 'this' context", () => {
-      const originalFn = vi.fn(contextFunction);
+      const originalFn = mock.fn(contextFunction);
       const wrappedFn = promisifyOrNot(originalFn);
-      const callback = vi.fn();
+      const callback = mock.fn();
       const context = { prefix: "Prefix" };
 
       wrappedFn.call(context, "test", callback);
 
-      expect(originalFn).toHaveBeenCalledWith("test", expect.any(Function));
-      expect(callback).toHaveBeenCalledWith(null, "Prefix: test");
+      const [value, callbackArg] = originalFn.mock.calls[0]?.arguments ?? [];
+      assert.equal(value, "test");
+      assert.equal(typeof callbackArg, "function");
+      assert.deepEqual(callback.mock.calls[0]?.arguments, [null, "Prefix: test"]);
     });
   });
 
@@ -83,13 +87,15 @@ describe("promisifyOrNot", () => {
 
       const result = await wrappedFn("test");
 
-      expect(result).toBe("Result: test");
+      assert.equal(result, "Result: test");
     });
 
     it("should return a promise that rejects on error", async () => {
       const wrappedFn = promisifyOrNot(exampleFunction);
 
-      await expect(wrappedFn("error")).rejects.toThrow("Test error");
+      await assert.rejects(async () => await wrappedFn("error"), {
+        message: "Test error",
+      });
     });
 
     it("should work with multiple arguments", async () => {
@@ -97,36 +103,38 @@ describe("promisifyOrNot", () => {
 
       const result = await wrappedFn("hello", 42, true);
 
-      expect(result).toBe("hello-42-true");
+      assert.equal(result, "hello-42-true");
     });
 
     it("should preserve 'this' context", async () => {
-      const originalFn = vi.fn(contextFunction);
+      const originalFn = mock.fn(contextFunction);
       const wrappedFn = promisifyOrNot(originalFn);
       const context = { prefix: "Prefix" };
 
       const result = await wrappedFn.call(context, "test");
 
-      expect(originalFn).toHaveBeenCalledWith("test", expect.any(Function));
-      expect(result).toBe("Prefix: test");
+      const [value, callbackArg] = originalFn.mock.calls[0]?.arguments ?? [];
+      assert.equal(value, "test");
+      assert.equal(typeof callbackArg, "function");
+      assert.equal(result, "Prefix: test");
     });
   });
 
   describe("edge cases", () => {
-    it("should handle functions with no arguments except callback", () => {
+    it("should handle functions with no arguments except callback", async () => {
       function noArgsFunction(callback: (error: Error | null, result: string) => void) {
         callback(null, "no args result");
       }
 
       const wrappedFn = promisifyOrNot(noArgsFunction);
-      const callback = vi.fn();
+      const callback = mock.fn();
 
       // Test with callback
       wrappedFn(callback);
-      expect(callback).toHaveBeenCalledWith(null, "no args result");
+      assert.deepEqual(callback.mock.calls[0]?.arguments, [null, "no args result"]);
 
       // Test with promise
-      return expect(wrappedFn()).resolves.toBe("no args result");
+      assert.equal(await wrappedFn(), "no args result");
     });
 
     it("should handle async functions that use callbacks", async () => {
@@ -140,15 +148,15 @@ describe("promisifyOrNot", () => {
       }
 
       const wrappedFn = promisifyOrNot(asyncFunction);
-      const callback = vi.fn();
+      const callback = mock.fn();
 
       // Test with callback
       await wrappedFn("test", callback);
-      expect(callback).toHaveBeenCalledWith(null, "Async: test");
+      assert.deepEqual(callback.mock.calls[0]?.arguments, [null, "Async: test"]);
 
       // Test with promise
       const result = await wrappedFn("test");
-      expect(result).toBe("Async: test");
+      assert.equal(result, "Async: test");
     });
   });
 });

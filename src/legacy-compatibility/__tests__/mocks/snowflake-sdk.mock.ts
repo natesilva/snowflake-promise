@@ -1,5 +1,7 @@
 import { Readable } from "node:stream";
-import { type Mock, vi } from "vitest";
+import { type Mock, mock } from "node:test";
+
+type AnyMock = Mock<(...args: any[]) => any>;
 
 // Create a mock Readable stream
 class MockReadable extends Readable {
@@ -7,39 +9,39 @@ class MockReadable extends Readable {
     super({ objectMode: true });
   }
 
-  /* v8 ignore next 3 */
+  /* node:coverage ignore next 3 */
   _read() {
     // Implementation not needed for the mock
   }
 }
 
 // Mock connection object
-const mockConnection: Record<string, Mock> = {
-  connect: vi.fn((callback) => callback(null)),
-  connectAsync: vi.fn((callback) => callback(null)),
-  destroy: vi.fn((callback) => callback(null)),
-  execute: vi.fn(),
-  getId: vi.fn(() => "mock-connection-id"),
+const mockConnection: Record<string, AnyMock> = {
+  connect: mock.fn((callback) => callback(null)),
+  connectAsync: mock.fn((callback) => callback(null)),
+  destroy: mock.fn((callback) => callback(null)),
+  execute: mock.fn(),
+  getId: mock.fn(() => "mock-connection-id"),
 };
 
 // Mock statement object
-const mockStatement: Record<string, Mock> = {
-  cancel: vi.fn((callback) => callback(null)),
-  execute: vi.fn(),
-  getSqlText: vi.fn(() => "mock-sql-text"),
-  getStatus: vi.fn(() => "SUCCEEDED"),
-  getColumns: vi.fn(() => [{ name: "COLUMN1", type: "TEXT" }]),
-  getColumn: vi.fn(() => ({ name: "COLUMN1", type: "TEXT" })),
-  getNumRows: vi.fn(() => 10),
-  getNumUpdatedRows: vi.fn(() => 5),
-  getSessionState: vi.fn(() => ({
+const mockStatement: Record<string, AnyMock> = {
+  cancel: mock.fn((callback) => callback(null)),
+  execute: mock.fn(),
+  getSqlText: mock.fn(() => "mock-sql-text"),
+  getStatus: mock.fn(() => "SUCCEEDED"),
+  getColumns: mock.fn(() => [{ name: "COLUMN1", type: "TEXT" }]),
+  getColumn: mock.fn(() => ({ name: "COLUMN1", type: "TEXT" })),
+  getNumRows: mock.fn(() => 10),
+  getNumUpdatedRows: mock.fn(() => 5),
+  getSessionState: mock.fn(() => ({
     getCurrentDatabase: () => "MOCK_DB",
     getCurrentSchema: () => "MOCK_SCHEMA",
   })),
-  getRequestId: vi.fn(() => "mock-request-id"),
-  getStatementId: vi.fn(() => "mock-statement-id"),
-  getQueryId: vi.fn(() => "mock-statement-id"),
-  streamRows: vi.fn(() => {
+  getRequestId: mock.fn(() => "mock-request-id"),
+  getStatementId: mock.fn(() => "mock-statement-id"),
+  getQueryId: mock.fn(() => "mock-statement-id"),
+  streamRows: mock.fn(() => {
     const stream = new MockReadable();
 
     // Simulate emitting data in the next tick
@@ -55,9 +57,9 @@ const mockStatement: Record<string, Mock> = {
 };
 
 // Create the mock SDK
-const mockSdk: Record<string, Mock> = {
-  configure: vi.fn(),
-  createConnection: vi.fn(() => mockConnection),
+const mockSdk: Record<string, AnyMock> = {
+  configure: mock.fn(),
+  createConnection: mock.fn(() => mockConnection),
 };
 
 // Export the mock objects so tests can access and configure them
@@ -65,10 +67,16 @@ export { mockConnection, mockSdk, mockStatement };
 
 // Export a function to reset all mocks
 export function resetMocks() {
-  vi.clearAllMocks();
+  for (const fn of [
+    ...Object.values(mockConnection),
+    ...Object.values(mockStatement),
+    ...Object.values(mockSdk),
+  ]) {
+    fn.mock.resetCalls();
+  }
 
   // Reset mockConnection execute to return a new statement each time
-  mockConnection.execute.mockImplementation((options) => {
+  mockConnection.execute.mock.mockImplementation((options) => {
     // Store the options on the statement for verification
     const stmt = { ...mockStatement, options };
 
@@ -82,5 +90,5 @@ export function resetMocks() {
   });
 }
 
-// Default export for vi.mock
+// Default export for mock.module
 export default mockSdk;
