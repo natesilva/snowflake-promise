@@ -1,4 +1,4 @@
-import { Readable } from "stream";
+import { Readable } from "node:stream";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ConnectionOptions } from "../index.ts";
 import { Snowflake } from "../index.ts";
@@ -6,8 +6,8 @@ import { mockConnection, mockStatement, resetMocks } from "./mocks/snowflake-sdk
 
 // Mock the snowflake-sdk module
 vi.mock("snowflake-sdk", async () => {
-  const actual = await vi.importActual<typeof import("./mocks/snowflake-sdk.mock.js")>(
-    "./mocks/snowflake-sdk.mock.js",
+  const actual = await vi.importActual<typeof import("./mocks/snowflake-sdk.mock.ts")>(
+    "./mocks/snowflake-sdk.mock.ts",
   );
 
   // Return the mock SDK as both named exports and as default export

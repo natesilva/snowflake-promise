@@ -1,10 +1,10 @@
-export { Snowflake } from "./snowflake.js";
-export { Statement } from "./statement.js";
+export { Snowflake } from "./snowflake.ts";
+export { Statement } from "./statement.ts";
 
-export type { ConnectionOptions } from "./types/ConnectionOptions.js";
-export type { ExecuteOptions } from "./types/ExecuteOptions.js";
-export { SnowflakeError } from "./types/SnowflakeError.js";
-export { StatementAlreadyExecutedError } from "./types/StatementAlreadyExecutedError.js";
-export { StatementNotCompleteError } from "./types/StatementNotCompleteError.js";
-export { StatementNotExecutedError } from "./types/StatementNotExecutedError.js";
-export type { StreamRowsOptions } from "./types/StreamRowsOptions.js";
+export type { ConnectionOptions } from "./types/ConnectionOptions.ts";
+export type { ExecuteOptions } from "./types/ExecuteOptions.ts";
+export { SnowflakeError } from "./types/SnowflakeError.ts";
+export { StatementAlreadyExecutedError } from "./types/StatementAlreadyExecutedError.ts";
+export { StatementNotCompleteError } from "./types/StatementNotCompleteError.ts";
+export { StatementNotExecutedError } from "./types/StatementNotExecutedError.ts";
+export type { StreamRowsOptions } from "./types/StreamRowsOptions.ts";

@@ -1,7 +1,7 @@
 import type { Connection } from "snowflake-sdk";
+import type { PromisifiedConnection } from "../types/promisified-connection.ts";
 import { promisifyOptionsCallbackFunction } from "./promisify-options-callback-function.ts";
 import { promisifyOrNot } from "./promisify-or-not.ts";
-import type { PromisifiedConnection } from "../types/promisified-connection.ts";
 
 /**
  * Given a Snowflake Connection object, returns a proxy with promisified methods.
@@ -18,7 +18,7 @@ import type { PromisifiedConnection } from "../types/promisified-connection.ts";
  */
 export function promisifyConnection(conn: Connection) {
   // If the Connection is already promisified, return it as-is
-  if (conn && Object.prototype.hasOwnProperty.call(conn, "__isPromisified")) {
+  if (conn && Object.hasOwn(conn, "__isPromisified")) {
     return conn as PromisifiedConnection;
   }
 

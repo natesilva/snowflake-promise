@@ -4,7 +4,7 @@ export type FetchAsStringTypes = "String" | "Boolean" | "Number" | "Date" | "JSO
 
 export interface ExecuteOptions {
   sqlText: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: bind values and result rows are untyped in the Snowflake SDK
   binds?: any[];
   streamResult?: boolean;
   fetchAsString?: FetchAsStringTypes[];
@@ -12,6 +12,6 @@ export interface ExecuteOptions {
 }
 
 export interface InternalExecuteOptions extends ExecuteOptions {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: bind values and result rows are untyped in the Snowflake SDK
   complete: (err: Error, stmt: Statement, rows: any[] | undefined) => void;
 }

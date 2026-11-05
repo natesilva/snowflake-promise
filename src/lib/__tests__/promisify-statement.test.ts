@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, vi } from "vitest";
-import { promisifyStatement } from "../promisify-statement.ts";
 import type { RowStatement, StatementCallback } from "snowflake-sdk";
+import { describe, expect, it, vi } from "vitest";
+import { promisifyStatement } from "../promisify-statement.ts";
 
 describe("promisifyStatement", () => {
   // Create a mock RowStatement with the necessary methods
@@ -38,7 +37,7 @@ describe("promisifyStatement", () => {
 
       // Mock the promisifyOrNot function at the module level
       vi.spyOn(
-        await import("../promisify-or-not.js"),
+        await import("../promisify-or-not.ts"),
         "promisifyOrNot",
       ).mockImplementation(() => {
         return promisifiedCancel;
@@ -116,7 +115,7 @@ describe("promisifyStatement", () => {
 
       // Mock the promisifyOrNot function at the module level
       vi.spyOn(
-        await import("../promisify-or-not.js"),
+        await import("../promisify-or-not.ts"),
         "promisifyOrNot",
       ).mockImplementation(() => {
         return promisifiedCancel;
@@ -173,7 +172,7 @@ describe("promisifyStatement", () => {
 
       // Mock the promisifyOrNot function to return our mock and check binding
       vi.spyOn(
-        await import("../promisify-or-not.js"),
+        await import("../promisify-or-not.ts"),
         "promisifyOrNot",
       ).mockImplementation(() => {
         // Return a function that checks if it's bound to the mockStatement
@@ -215,21 +214,21 @@ describe("promisifyStatement", () => {
     it("should allow access to properties", () => {
       const mockStatement = createMockStatement();
       // Add a test property using index signature
-      (mockStatement as any)["testProperty"] = "test value";
+      (mockStatement as any).testProperty = "test value";
 
       const promisifiedStatement = promisifyStatement(mockStatement);
 
-      expect((promisifiedStatement as any)["testProperty"]).toBe("test value");
+      expect((promisifiedStatement as any).testProperty).toBe("test value");
     });
 
     it("should allow setting properties", () => {
       const mockStatement = createMockStatement();
       const promisifiedStatement = promisifyStatement(mockStatement);
 
-      (promisifiedStatement as any)["testProperty"] = "new value";
+      (promisifiedStatement as any).testProperty = "new value";
 
-      expect((mockStatement as any)["testProperty"]).toBe("new value");
-      expect((promisifiedStatement as any)["testProperty"]).toBe("new value");
+      expect((mockStatement as any).testProperty).toBe("new value");
+      expect((promisifiedStatement as any).testProperty).toBe("new value");
     });
   });
 });

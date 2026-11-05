@@ -1,5 +1,5 @@
-import type { Connection, ConnectionCallback, RowStatement } from "snowflake-sdk";
 import type snowflake from "snowflake-sdk";
+import type { Connection, ConnectionCallback, RowStatement } from "snowflake-sdk";
 import type { SetRequired } from "type-fest";
 import type { PromisifiedRowStatement } from "./promisified-row-statement.ts";
 

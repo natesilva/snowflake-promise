@@ -29,9 +29,9 @@ export function promisifyOptionsCallbackFunction<RowType, T extends RowStatement
   target: Connection,
   fn: (options: StatementOption) => T,
 ) {
-  return function (
+  return (
     options: StatementOption,
-  ): T | { statement: T; resultsPromise: Promise<RowType[] | undefined> } {
+  ): T | { statement: T; resultsPromise: Promise<RowType[] | undefined> } => {
     // If options includes a `complete` callback, call the original function
     if (options && typeof options.complete === "function") {
       return fn.call(target, options);
@@ -48,7 +48,7 @@ export function promisifyOptionsCallbackFunction<RowType, T extends RowStatement
     // Create a new options object with a `complete` callback to capture row results
     const newOptions: StatementOption = { ...options };
 
-    newOptions.complete = (err, stmt, rows) => {
+    newOptions.complete = (err, _stmt, rows) => {
       if (err) {
         rowsReject(err);
       } else {
