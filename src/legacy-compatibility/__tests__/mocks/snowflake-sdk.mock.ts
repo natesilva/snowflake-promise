@@ -1,5 +1,5 @@
 import { Readable } from "node:stream";
-import { vi } from "vitest";
+import { type Mock, vi } from "vitest";
 
 // Create a mock Readable stream
 class MockReadable extends Readable {
@@ -14,7 +14,7 @@ class MockReadable extends Readable {
 }
 
 // Mock connection object
-const mockConnection = {
+const mockConnection: Record<string, Mock> = {
   connect: vi.fn((callback) => callback(null)),
   connectAsync: vi.fn((callback) => callback(null)),
   destroy: vi.fn((callback) => callback(null)),
@@ -23,7 +23,7 @@ const mockConnection = {
 };
 
 // Mock statement object
-const mockStatement = {
+const mockStatement: Record<string, Mock> = {
   cancel: vi.fn((callback) => callback(null)),
   execute: vi.fn(),
   getSqlText: vi.fn(() => "mock-sql-text"),
@@ -55,7 +55,7 @@ const mockStatement = {
 };
 
 // Create the mock SDK
-const mockSdk = {
+const mockSdk: Record<string, Mock> = {
   configure: vi.fn(),
   createConnection: vi.fn(() => mockConnection),
 };

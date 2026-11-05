@@ -7,5 +7,4 @@ export default defineConfig({
   dts: true,
   clean: true,
   fixedExtension: false,
-  tsconfig: "tsconfig.build.json",
 });
