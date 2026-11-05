@@ -35,10 +35,10 @@
   ],
   "scripts": {
     "clean": "del-cli dist coverage",
-    "build": "tsc && tsup",
+    "build": "tsup",
     "prepublishOnly": "npm run clean && npm run build",
     "prettier": "prettier --write \"{src,test}/**/*.?(ts|json)\"",
-    "lint": "eslint .",
+    "lint": "tsc && eslint .",
     "test": "vitest run",
     "test:watch": "vitest --ui --coverage.enabled=true",
     "test:coverage": "vitest run --coverage"
