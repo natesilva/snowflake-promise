@@ -35,7 +35,7 @@
   ],
   "scripts": {
     "clean": "del-cli dist coverage",
-    "build": "tsup",
+    "build": "tsdown",
     "prepublishOnly": "npm run clean && npm run build",
     "format": "biome format --write",
     "lint": "tsc && biome check",
@@ -55,7 +55,7 @@
     "@vitest/ui": "^5.1.0",
     "del-cli": "^8.0.1",
     "snowflake-sdk": "^3.4.1",
-    "tsup": "^8.5.0",
+    "tsdown": "^0.23.5",
     "typescript": "^7.0.2",
     "vitest": "^5.1.0"
   },
