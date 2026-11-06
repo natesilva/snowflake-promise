@@ -34,10 +34,11 @@ jobs:
       - run: npm test
       - run: npm run build
 
-  # Early warning for the next snowflake-sdk major version. A failure here does not block merges.
+  # Early warning for the next snowflake-sdk major version. It runs only on the schedule and on manual dispatch,
+  # so a failure never appears as a failing check on a commit or pull request.
   canary:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
