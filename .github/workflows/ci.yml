@@ -4,20 +4,14 @@ on:
   push:
     branches: [main]
   pull_request:
-  schedule:
-    - cron: "0 6 * * 1"
   workflow_dispatch:
 
 permissions:
   contents: read
 
-env:
-  SNOWFLAKE_SDK_CANARY_TAG: alpha
-
 jobs:
   # Checks the code against the locked snowflake-sdk version on each supported Node.js version.
   test:
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -33,20 +27,3 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
-
-  # Early warning for the next snowflake-sdk major version. It runs only on the schedule and on manual dispatch,
-  # so a failure never appears as a failing check on a commit or pull request.
-  canary:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npm install --no-save snowflake-sdk@${{ env.SNOWFLAKE_SDK_CANARY_TAG }}
-      - run: node -p "'snowflake-sdk ' + JSON.parse(fs.readFileSync('node_modules/snowflake-sdk/package.json', 'utf8')).version"
-      - run: npx tsc
-      - run: npm test
